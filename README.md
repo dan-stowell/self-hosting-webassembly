@@ -67,7 +67,7 @@ compiles a program to wasm, and `waforth.wasm` assembles.
 
 | Compiler | Lang | Tier/Effort | Status |
 |---|---|---|---|
-| [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm (`dist/cc.wasm`); runs as `wcc` under wasm3 |
+| [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm; **end-to-end**: `cc.wasm` compiles C → wasm that runs |
 | [wa](compilers/wa/notes.md) (凹语言) | Go | 0 / 2 | ✅ builds-to-wasm (`dist/wa.wasm`); output **byte-identical** to native |
 | [waforth](compilers/waforth/notes.md) | wat | 0 / 2 | ✅ builds-to-wasm (`dist/waforth.wasm`); running needs a host |
 | virgil | Virgil | 0 / 2 | planned (proven in scratch) |

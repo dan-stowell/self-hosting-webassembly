@@ -30,17 +30,20 @@ make wcc-gen2   # wcc compiles its own sources -> cc.wasm
 **No clang/node/emscripten needed.** A WASI runtime is needed only to *run* the
 result.
 
-## Verified
+## Verified (end-to-end)
+
+`cc.wasm` running under `tools/wasm3` compiled a C program to wasm, and the
+emitted module runs:
 
 ```
-$ wasm3 dist/cc.wasm --version
-wcc version 0.1.11
-Target: wasm
+$ compilers/xcc/run-cc.sh hello.c hello.wasm   # cc.wasm compiles C -> wasm
+$ tools/wasm3 hello.wasm
+i=0 … i=4
 ```
 
-Built and ran clean on the VM (gcc 13). Compiling real programs with `cc.wasm`
-additionally needs the bundled headers/libc preopened into the guest FS — see
-`src/wcc/www/lib_list.json` and `src/tool/runwasi*` for the mapping the demo uses.
+`run-cc.sh` stages the toolchain at the guest paths cc.wasm expects
+(`/usr/include`, `/usr/lib`, a writable `/tmp`; wasm3 maps `/` -> cwd). This is
+exercised by `scripts/verify.sh`.
 
 ## Our changes
 

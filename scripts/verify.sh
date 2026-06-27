@@ -11,10 +11,17 @@ ok(){ echo "  PASS: $1"; pass=$((pass+1)); }
 no(){ echo "  FAIL: $1"; fail=$((fail+1)); }
 iswasm(){ file -b "$1" 2>/dev/null | grep -q "WebAssembly"; }
 
-echo "[xcc] C compiler as wasm"
+echo "[xcc] C compiler as wasm (end-to-end: compile + run)"
 "$root/compilers/xcc/build.sh" >/dev/null 2>&1 || no "xcc build.sh failed"
-out=$("$W3" "$root/compilers/xcc/dist/cc.wasm" --version 2>&1 | head -1)
-[[ "$out" == *"wcc version"* ]] && ok "cc.wasm runs as a compiler ($out)" || no "cc.wasm --version => $out"
+tmp=$(mktemp -d)
+printf '#include <stdio.h>\nint main(void){ printf("xcc-ok\\n"); return 0; }\n' > "$tmp/t.c"
+if "$root/compilers/xcc/run-cc.sh" "$tmp/t.c" "$tmp/t.wasm" >/dev/null 2>&1 && iswasm "$tmp/t.wasm"; then
+  res=$("$W3" "$tmp/t.wasm" 2>&1 | head -1)
+  [[ "$res" == "xcc-ok" ]] && ok "cc.wasm compiled C -> wasm, output runs ($res)" || no "compiled but ran => $res"
+else
+  no "cc.wasm did not compile t.c to wasm"
+fi
+rm -rf "$tmp"
 
 echo "[wa] Go-based Wa compiler as wasm"
 "$root/compilers/wa/build.sh" >/dev/null 2>&1 || no "wa build.sh failed"
