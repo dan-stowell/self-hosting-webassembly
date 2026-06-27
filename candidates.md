@@ -28,6 +28,37 @@ wasm-emitting toolchain.
 > GitHub release CDN / package registries (forcing `apt` + `git clone` + a
 > built-from-source wasm3); that has since been restored.
 
+## Holy grail: can the big "real" languages self-host to wasm?
+
+Investigated the three most-requested targets. The deciding factor is the same as
+everywhere else — **does the backend drag in native code (LLVM)?**
+
+| Target | Backend | LLVM? | Self-hosts to wasm? | Effort |
+|---|---|---|---|---|
+| **AssemblyScript** | Binaryen shipped **as wasm** (npm pkg), called via C-API → wasm imports | none | ✅ **already does** (built + verified here: byte-identical fixed point) | 1–2 |
+| **Zig** | own self-hosted wasm backend (`src/codegen/wasm/`, `src/link/Wasm.zig`); LLVM is opt-in (`have_llvm=false`) | none (for this path) | ✅ **already does** — `stage1/zig1.wasm` *is* the compiler self-compiled to wasm, used in its own bootstrap. (Old C++/LLVM "stage1" was removed.) | 1–2 |
+| **Porffor** | its **own pure-JS** wasm encoder (`compiler/assemble.js` etc.); "Binaryen/etc is not used" | none | ⚠️ partial — self-applies to its *builtins*, but compiling its own 24K-line compiler needs JS far beyond its supported subset (~61% Test262). Clean deps, full self-host aspirational. | 5 (true self-host) / 1–2 (run its JS in a wasm JS-engine) |
+| **TinyGo** | **LLVM** via CGo (`tinygo.org/x/go-llvm`, 57 sites); wasm = Go→LLVM IR→LLVM→wasm-ld | **intrinsic** | ❌ — CGo can't target wasip1; would need LLVM-in-wasm | 5 |
+
+Takeaways: **AssemblyScript and Zig are the holy grail and are already done upstream**
+(no LLVM, shipping self-hosted wasm builds) — the work is integration, not invention.
+**TinyGo is the one "real" language that genuinely can't** self-host to wasm without
+compiling LLVM to wasm. **Porffor** has ideal (no-native) dependencies but its compiler
+is too complex for its own JS subset today. This corrects the Tier 3 placement of Zig
+below (its effort is 1–2 via the no-LLVM backend, not 5).
+
+## Self-hosting vs. cross-compiled (a distinction that matters)
+
+"Self-hosting to wasm" = the compiler is written in language L, emits wasm, and
+compiles *its own source* to a wasm module. That is a stronger property than merely
+"the compiler runs as wasm":
+
+- **Truly self-hosting:** AssemblyScript, xcc (C→wasm written in C, `cc.wasm` built by
+  itself), Virgil, Schism, Zig. (WAForth is the limit case — hand-written wasm that
+  compiles Forth to wasm.)
+- **Cross-compiled to wasm (not self-hosting):** **Wa** — its compiler is written in Go
+  and cross-compiled to wasm by Go (`GOOS=wasip1`); it does not compile itself.
+
 ## How to read the ranking
 
 Repo size (from the GitHub API) is the user's stand-in for complexity, but it's

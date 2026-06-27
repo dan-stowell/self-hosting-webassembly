@@ -10,6 +10,24 @@ building it with another wasm-emitting toolchain.
 - **[manifest.toml](manifest.toml)** — index of the suite with upstream pins and
   build status.
 
+## Goals
+
+Three related but distinct threads:
+
+1. **Find all the truly self-hosting wasm compilers** — a compiler written in
+   language L that emits wasm and compiles *its own source* to a wasm module.
+   Confirmed so far: **AssemblyScript**, **xcc**, **Zig**, **Virgil**, **Schism**,
+   and (as a limit case) **WAForth**. Note **Wa** is *not* self-hosting — it's a
+   Go compiler cross-compiled to wasm. (See candidates.md "self-hosting vs.
+   cross-compiled".)
+2. **Use those compilers to compile more tools/compilers to wasm** — e.g.
+   `cc.wasm` (xcc) compiling other C projects to wasm (demoed end-to-end).
+3. **Make the big "real" languages self-host to wasm** — AssemblyScript ✅ (done,
+   vendored) and Zig ✅ (done upstream: `zig1.wasm`) are the holy grail and need
+   no LLVM. **TinyGo ❌** is LLVM-intrinsic (can't, short of LLVM-in-wasm).
+   **Porffor** has ideal no-native deps but its compiler outgrows its own JS
+   subset (full self-host aspirational).
+
 ## Layout
 
 ```
