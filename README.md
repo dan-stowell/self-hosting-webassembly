@@ -50,6 +50,19 @@ compilers/<name>/build.sh                  # output lands in compilers/<name>/di
 
 Built artifacts (`dist/`, in-tree object files) are git-ignored and reproducible.
 
+## Run / verify
+
+A local wasm3 WASI runtime (built from source, since the dev VM can't reach the
+GitHub release CDN) runs the artifacts:
+
+```sh
+scripts/build-wasm3.sh    # -> tools/wasm3  (needs gcc + libuv1-dev)
+scripts/verify.sh         # build every builds-to-wasm compiler and smoke-test it
+```
+
+`verify.sh` currently checks: `cc.wasm` runs as the C compiler, `wa.wasm`
+compiles a program to wasm, and `waforth.wasm` assembles.
+
 ## Status
 
 | Compiler | Lang | Tier/Effort | Status |

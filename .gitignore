@@ -11,3 +11,4 @@ compilers/xcc/src/cc1
 compilers/xcc/src/cpp
 compilers/xcc/src/as
 compilers/xcc/src/ld
+tools/
