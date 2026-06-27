@@ -40,6 +40,14 @@ else
   echo "  SKIP: REPL host not built (run compilers/waforth/build-host.sh)"
 fi
 
+echo "[schism] self-hosting Scheme->wasm (needs pinned Node 12)"
+if ls -d "$root"/tools/node-v12*/bin/node >/dev/null 2>&1; then
+  out=$("$root/compilers/schism/build.sh" 2>&1 | tail -1)
+  [[ "$out" == *"self-host OK"* ]] && ok "stage0.wasm self-hosts (stage0->stage1->stage2)" || no "schism self-host => $out"
+else
+  echo "  SKIP: Node 12 not in tools/ (nodejs.org/dist/v12.22.12)"
+fi
+
 echo "[assemblyscript] self-hosting compiler as wasm"
 asc="$root/compilers/assemblyscript/dist/asc.wasm"
 if [ -f "$asc" ]; then
