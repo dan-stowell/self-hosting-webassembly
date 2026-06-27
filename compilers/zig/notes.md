@@ -58,6 +58,11 @@ Caveats of this bootstrap build (expected, not bugs):
   building a wasm exe needs `ar` to archive wasi-libc, which the trimmed
   bootstrap refuses (`ar_command` unsupported). The native `zig2` is the right
   tool for emitting wasm.
+- **Zig-source only** (like Virgil is Virgil-only). Compiling C is out:
+  `zig2 cc` is the clang/LLVM driver (crashes — `have_llvm = false`), and the
+  bundled Zig-native C frontend `aro` reports "aro does not support compiling C
+  objects yet". So this is a Zig→{native,wasm} compiler, not a general C/wasm
+  toolchain — useful for Goal 2 only to the extent the input is Zig.
 
 ## Why this entry is thin (not "vendor pristine")
 
