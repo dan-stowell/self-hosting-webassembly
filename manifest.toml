@@ -37,9 +37,9 @@ impl_lang  = "WebAssembly (wat)"
 backend    = "direct"
 tier       = 0
 effort     = 2
-status     = "builds-to-wasm"  # assembles; running needs a host for shell.* imports
-artifact   = "dist/waforth.wasm"
-host_deps  = ["wat2wasm"]      # + a host for its 6 shell.* imports
+status     = "end-to-end"      # assembles; REPL host runs the wasm-resident compiler
+artifact   = "dist/waforth.wasm + dist/waforth"
+host_deps  = ["wat2wasm", "wasmtime C-API (build-host.sh)"]
 
 # --- next up (verified easy wins from candidates.md, not yet vendored) ---
 

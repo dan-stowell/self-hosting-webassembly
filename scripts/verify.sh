@@ -33,6 +33,12 @@ rm -rf "$tmp"
 echo "[waforth] Forth compiler in wasm"
 "$root/compilers/waforth/build.sh" >/dev/null 2>&1 || no "waforth build.sh failed"
 iswasm "$root/compilers/waforth/dist/waforth.wasm" && ok "waforth.wasm assembled" || no "waforth.wasm invalid"
+if [ -x "$root/compilers/waforth/dist/waforth" ]; then
+  res=$(printf ': SQ DUP * ; 7 SQ .\nBYE\n' | "$root/compilers/waforth/dist/waforth" 2>&1 | tr -d '\n ')
+  [[ "$res" == *"49"* ]] && ok "REPL ran (compiled & ran a word: 7 SQ . => 49)" || no "REPL => $res"
+else
+  echo "  SKIP: REPL host not built (run compilers/waforth/build-host.sh)"
+fi
 
 echo
 echo "verify: $pass passed, $fail failed"

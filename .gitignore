@@ -12,3 +12,11 @@ compilers/xcc/src/cpp
 compilers/xcc/src/as
 compilers/xcc/src/ld
 tools/
+
+# waforth standalone host build outputs (compilers/waforth/build-host.sh)
+compilers/waforth/src/src/standalone/wasmtime-*/
+compilers/waforth/src/src/standalone/*.o
+compilers/waforth/src/src/standalone/*.tar.xz
+compilers/waforth/src/src/standalone/waforth
+compilers/waforth/src/src/standalone/waforth_core.wasm
+compilers/waforth/src/src/standalone/waforth_core.h
