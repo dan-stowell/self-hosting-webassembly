@@ -1,0 +1,30 @@
+builddir = build
+cxx = clang++
+cflags = -std=c++20 -O3 -I include -I src/cli -I src/core
+
+rule cxx
+  command = $cxx $cflags -MD -MF $out.d -c $in -o $out
+  depfile = $out.d
+  description = CXX $in
+
+rule link
+  command = $cxx $$LDFLAGS_LIBCXX -o $out $in
+  description = LINK $out
+
+rule generate_schema
+  command = ./webcc --headers && touch $out
+  description = GEN schema
+
+# Build webcc (loads schema from binary cache at runtime)
+build build/obj/main.o: cxx src/cli/main.cc
+build build/obj/utils.o: cxx src/cli/utils.cc
+build build/obj/schema.o: cxx src/cli/schema.cc
+build build/obj/generators.o: cxx src/cli/generators.cc
+build build/obj/wasm.o: cxx src/cli/wasm.cc
+
+build webcc: link build/obj/main.o build/obj/utils.o build/obj/schema.o build/obj/generators.o build/obj/wasm.o
+
+# Generate headers and binary cache (requires webcc to exist first)
+build schema.wcc.bin: generate_schema webcc schema.def
+
+default webcc

@@ -1,0 +1,5 @@
+upstream:   https://github.com/io-eric/webcc
+commit:     a4b36eb2ebf6d402702a44651ed521790f1c3fba
+authored:   2026-06-20
+vendored:   2026-06-27
+license:    LICENSE

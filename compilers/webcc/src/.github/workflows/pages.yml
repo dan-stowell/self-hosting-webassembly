@@ -1,0 +1,124 @@
+name: Deploy Demos
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang ninja-build lld
+
+      - name: Build Toolchain
+        run: ./build.sh
+
+      - name: Build Examples
+        run: |
+          mkdir -p public/examples
+          
+          # List of examples
+          EXAMPLES=(
+              "webcc_audio"
+              "webcc_canvas"
+              "webcc_dom"
+              "webcc_types"
+              "webcc_webgl"
+              "webcc_webgl_waves"
+              "webcc_webgpu"
+          )
+          
+          # Build each example and copy to public/
+          for ex in "${EXAMPLES[@]}"; do
+              echo "Building $ex..."
+              ./examples/$ex/build.sh
+              mkdir -p "public/examples/$ex"
+              cp -r examples/$ex/dist/* "public/examples/$ex/"
+          done
+
+      - name: Generate Landing Page
+        run: |
+          cat > public/index.html <<EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>WebCC Examples</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; background: #1a1a1a; color: #f0f0f0; }
+                  h1 { border-bottom: 1px solid #333; padding-bottom: 1rem; }
+                  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-top: 2rem; }
+                  .card { background: #2a2a2a; padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, background 0.2s; border: 1px solid #333; }
+                  .card:hover { transform: translateY(-2px); background: #333; border-color: #555; }
+                  .card h3 { margin: 0 0 0.5rem 0; color: #4caf50; }
+                  .card p { margin: 0; color: #aaa; font-size: 0.9rem; }
+              </style>
+          </head>
+          <body>
+              <h1>WebCC Examples</h1>
+              <p>Live demos built automatically from the <a href="https://github.com/io-eric/webcc" style="color: #4caf50">WebCC repository</a>.</p>
+              <div class="grid">
+                  <a href="examples/webcc_canvas/index.html" class="card">
+                      <h3>Canvas 2D</h3>
+                      <p>Canvas 2D rendering and Mouse Input.</p>
+                  </a>
+                  <a href="examples/webcc_webgl/index.html" class="card">
+                      <h3>WebGL Cube</h3>
+                      <p>Raw WebGL 3D Cube rendering.</p>
+                  </a>
+                  <a href="examples/webcc_webgl_waves/index.html" class="card">
+                      <h3>WebGL Waves</h3>
+                      <p>Procedural Waves with WebGL Shaders.</p>
+                  </a>
+                  <a href="examples/webcc_dom/index.html" class="card">
+                      <h3>DOM Manipulation</h3>
+                      <p>DOM manipulation and Event handling from C++.</p>
+                  </a>
+                  <a href="examples/webcc_audio/index.html" class="card">
+                      <h3>Audio</h3>
+                      <p>Audio playback control from C++.</p>
+                  </a>
+                  <a href="examples/webcc_webgpu/index.html" class="card">
+                      <h3>WebGPU</h3>
+                      <p>Basic WebGPU Triangle rendering.</p>
+                  </a>
+                  <a href="examples/webcc_types/index.html" class="card">
+                      <h3>Types</h3>
+                      <p>C++ Core types (String, Array, Optional) and Heap Visualization.</p>
+                  </a>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

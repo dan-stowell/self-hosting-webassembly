@@ -1,0 +1,26 @@
+# Binaries
+/webcc
+
+# Build artifacts
+.ninja_log
+
+# Build cache
+.webcc_cache/
+
+# Binary schema (generated from schema.def)
+schema.wcc.bin
+
+# Generated Web Artifacts (produced by the tool)
+app.wasm
+app.js
+index.html
+
+# OS / Editor junk
+.DS_Store
+.vscode/
+build/
+dist/
+
+# Generated C++ Headers
+include/webcc/*.h
+!include/webcc/webcc.h

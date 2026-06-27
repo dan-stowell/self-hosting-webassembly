@@ -64,3 +64,27 @@ effort     = 4                 # bitrotten (2020): pre-final wasm encodings, rem
 status     = "vendored"        # needs revival; see compilers/schism/notes.md
 artifact   = "dist/schism.wasm"
 host_deps  = ["node (period-correct ~v12) or guile", "+ codegen patches"]
+
+# --- vendored but blocked: native-backend dependency wall (data points) ---
+
+[[compiler]]
+name       = "webcc"
+upstream   = "https://github.com/io-eric/webcc"
+impl_lang  = "C++"
+backend    = "own codegen + external lld"
+tier       = 1
+effort     = 3
+status     = "vendored-blocked"  # builds native; execs lld to link -> can't run as wasm
+artifact   = "(blocked)"
+host_deps  = ["clang>=16", "ninja", "lld"]
+
+[[compiler]]
+name       = "basic_rs"
+upstream   = "https://github.com/yiransheng/basic_rs"
+impl_lang  = "Rust"
+backend    = "Binaryen (binaryen crate, FFI to native C++)"
+tier       = 1
+effort     = 3
+status     = "vendored-blocked"  # binaryen+cpuprofiler FFI don't cross-compile to wasm32
+artifact   = "(blocked)"
+host_deps  = ["cargo"]

@@ -1,0 +1,5 @@
+upstream:   https://github.com/yiransheng/basic_rs
+commit:     ddd64e2eacfc2b36354e32e2b6abdb97989bd3a2
+authored:   2019-01-17
+vendored:   2026-06-27
+license:    UNKNOWN — check upstream

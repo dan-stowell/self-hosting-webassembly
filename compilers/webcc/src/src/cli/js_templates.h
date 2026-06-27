@@ -1,0 +1,105 @@
+#pragma once
+#include <string>
+
+namespace webcc
+{
+
+    // JS code to initialize the WebAssembly module and set up the environment.
+    const std::string JS_INIT_HEAD = R"(
+const supportsStreaming = () => {
+    try {
+        if (typeof WebAssembly === 'undefined') return false;
+        if (typeof WebAssembly.instantiateStreaming !== 'function') return false;
+        
+        return !/^((?!chrome|android).)*safari/i.test(navigator.userAgent) ||
+               parseInt(navigator.userAgent.match(/version\/(\d+)/i)?.[1] || 0) >= 15;
+    } catch { return false; }
+};
+
+const run = async () => {
+    const scriptSrc = document.currentScript && document.currentScript.src;
+    const assetBase = new URL('.', scriptSrc || window.location.href);
+    const wasmUrl = new URL('app.wasm', assetBase);
+
+    const _wm = () => {}; // shared no-op for void-command feature markers (never called)
+    const imports = {
+        env: {
+            // C++ calls this function to tell JS "I wrote commands, please execute them"
+            webcc_js_flush: (ptr, size) => flush(ptr, size),
+            // C++ runtime
+            __cxa_atexit: () => 0,
+            __cxa_thread_atexit: () => 0,
+            __cxa_finalize: () => {}
+)";
+
+    // Closes the `env` import object. The generator may then append sibling
+    // import modules (e.g. the "w" marker-stub module) before JS_INIT_INSTANTIATE
+    // closes the `imports` object and instantiates the module.
+    const std::string JS_INIT_ENV_CLOSE = R"(
+        })";
+
+    // JS code to finalize WASM instantiation.
+    // Note: The exports destructuring is now generated dynamically based on what's needed.
+    const std::string JS_INIT_INSTANTIATE = R"(
+    };
+
+    let mod;
+    if (supportsStreaming()) {
+        mod = await WebAssembly.instantiateStreaming(fetch(wasmUrl), imports);
+    } else {
+        const response = await fetch(wasmUrl);
+        const bytes = await response.arrayBuffer();
+        mod = await WebAssembly.instantiate(bytes, imports);
+    }
+)";
+
+    // JS code for the 'flush' function, which processes commands from C++.
+    const std::string JS_FLUSH_HEAD = R"(
+    // Reusable text decoder to avoid garbage collection overhead
+    const decoder = new TextDecoder();
+    let u8 = new Uint8Array(memory.buffer);
+    let i32 = new Int32Array(memory.buffer);
+    let f32 = new Float32Array(memory.buffer);
+    let f64 = new Float64Array(memory.buffer);
+
+    function flush(ptr, size) {
+        if (size === 0) return;
+
+        if (u8.buffer !== memory.buffer) {
+            u8 = new Uint8Array(memory.buffer);
+            i32 = new Int32Array(memory.buffer);
+            f32 = new Float32Array(memory.buffer);
+            f64 = new Float64Array(memory.buffer);
+        }
+
+        let pos = ptr;
+        const end = ptr + size;
+
+        // Loop through the buffer
+        while (pos < end) {
+            if (pos + 4 > end) {
+                console.error("WebCC: Unexpected end of buffer reading opcode");
+                break;
+            }
+            const opcode = i32[pos >> 2];
+            pos += 4;
+
+            switch (opcode) {
+)";
+
+    // The constant "footer" for the generated JS file.
+    const std::string JS_TAIL = R"(
+                default:
+                    console.error("Unknown opcode:", opcode);
+                    return;
+            }
+        }
+    }
+
+    // Run the C++ main function
+    if (main) main();
+};
+run();
+)";
+
+} // namespace webcc

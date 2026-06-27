@@ -1,0 +1,8 @@
+#pragma once
+#include "../core/function.h"
+
+namespace std
+{
+    template <typename T>
+    using function = webcc::function<T>;
+} // namespace std

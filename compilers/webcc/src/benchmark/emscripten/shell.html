@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Emscripten Benchmark</title>
+    <style>
+        body { margin: 0; background-color: #000; color: #ccc; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        canvas { border: 1px solid #333; box-shadow: 0 0 20px #000; }
+        #status { position: absolute; top: 10px; left: 10px; }
+    </style>
+</head>
+<body id="body">
+    <div id="status">Running...</div>
+    <!-- Canvas will be appended here by C++ code -->
+    <script>
+        var Module = {
+            print: (function() {
+                return function(text) {
+                    console.log(text);
+                };
+            })(),
+            printErr: function(text) {
+                console.error(text);
+            },
+            canvas: (function() {
+                return null; // C++ creates the canvas
+            })(),
+            closeWindow: function() {
+                document.getElementById('status').innerText = "Done! You can close this tab.";
+                document.body.innerHTML = "<h1 style='color:white'>Benchmark Complete</h1>";
+                window.close();
+            }
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>

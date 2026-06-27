@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang ninja-build lld
+
+    - name: Build Toolchain
+      run: ./build.sh
+
+    - name: Run Tests
+      run: ./tests/run.sh
+
+    - name: Build Examples
+      run: |
+        EXAMPLES=(
+            "webcc_audio"
+            "webcc_canvas"
+            "webcc_dom"
+            "webcc_types"
+            "webcc_webgl"
+            "webcc_webgl_waves"
+            "webcc_webgpu"
+        )
+        
+        for ex in "${EXAMPLES[@]}"; do
+            echo "Building example: $ex"
+            # Clean dist folder to ensure fresh build
+            rm -rf "examples/$ex/dist"
+            ./examples/$ex/build.sh
+        done
