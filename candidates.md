@@ -16,7 +16,7 @@ wasm-emitting toolchain.
 > | **xcc** | C | ✅ end-to-end — `cc.wasm` compiles C → wasm that runs |
 > | **wa** (凹语言) | Go | ✅ `GOOS=wasip1` build; output **byte-identical** to native |
 > | **waforth** | wat | ✅ end-to-end — REPL compiles & runs Forth words as wasm at runtime |
-> | **schism** | Scheme | 🅥 vendored; needs revival (2019-era encodings + removed Node flags) |
+> | **schism** | Scheme | ✅ **self-hosting** — revived under a pinned Node 12; stage0.wasm recompiles compiler.ss through stage1→stage2 |
 > | **webcc** | C++ | ⛔ blocked — own codegen but **execs `lld`** to link |
 > | **basic_rs** | Rust | ⛔ blocked — `basic2wasm` uses the **`binaryen` crate** (native FFI) |
 >

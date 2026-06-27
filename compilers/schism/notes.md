@@ -8,8 +8,8 @@ written in that same subset. Google project, **unmaintained since 2020**.
 | Tier / effort | 0 / 4 |
 | Impl language | Scheme |
 | Backend | direct (its own wasm byte emitter) |
-| Status | 🅥 vendored — **needs revival** (bitrotten 2019-era wasm + Node) |
-| Artifact | `dist/schism.wasm` (target) |
+| Status | ✅ **self-hosting** (under a pinned Node 12) — revived |
+| Artifact | `schism-stage0.wasm` (committed; the Scheme→wasm compiler as wasm) |
 
 ## Bootstrap chain
 
@@ -28,17 +28,27 @@ written in that same subset. Google project, **unmaintained since 2020**.
   `--experimental-modules`); modern Node errors on unknown `--experimental-*`.
 - ESM extensionless imports and an ancient `meow ^5.0.0` dep.
 
-## Revival paths
+## Revived (the easy path worked)
 
-- **Easy (~effort 3):** run under a period-correct **Node ~12 / V8 ~7** where
-  those flags + the 2019 encodings are valid; the committed stage0 snapshot then
-  works without any Scheme. Sourcing that old Node is the blocker (the dev VM's
-  GitHub-CDN/registry egress is firewalled).
-- **Full (~effort 4–5):** patch the wasm emitter (`ref.null` type immediate,
-  `anyref`→`externref`/GC), fix the Node flags + ESM specifiers, then
-  re-bootstrap from source via Guile (`bootstrap-from-guile.sh`).
+Running the committed `schism-stage0.wasm` under a **period-correct Node 12**
+(`tools/node-v12.22.12`) with its original flags revives the full self-host
+bootstrap — no Scheme and no codegen patches needed:
 
-See `candidates.md` for the original assessment.
+```
+$ node12 --experimental-modules --experimental-wasm-anyref \
+         --experimental-wasm-return-call run-tests.mjs
+  ... stage0 succeeded / stage1 succeeded / stage2 succeeded   (per test)
+```
+
+`build.sh` runs this and asserts the self-host (stage0 → stage1 → stage2). The
+whole test suite passes except `test/list-find.ss` (a pre-existing
+compiler-correctness nit in the compiled output — not a bootstrap failure).
+
+Still bitrotten separately: the standalone CLI `run-schism.mjs` uses an
+extensionless ESM import that Node 12 also rejects; the bootstrap path
+(`run-tests.mjs`) is the working entry point. A full modernization (run on
+current V8) would still need the codegen patches (`ref.null` type immediate,
+`anyref`→`externref`).
 
 ## Our changes
 

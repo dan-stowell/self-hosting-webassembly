@@ -99,8 +99,9 @@ runtime from source, and runs `scripts/verify.sh` — so a successful image buil
 | [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm; **end-to-end**: `cc.wasm` compiles C → wasm that runs |
 | [wa](compilers/wa/notes.md) (凹语言) | Go | 0 / 2 | ✅ builds-to-wasm (`dist/wa.wasm`); output **byte-identical** to native |
 | [waforth](compilers/waforth/notes.md) | wat | 0 / 2 | ✅ **end-to-end**: REPL compiles & runs Forth words as wasm at runtime |
+| [schism](compilers/schism/notes.md) | Scheme | 0 / 3 | ✅ **self-hosting** (revived under pinned Node 12) |
 | virgil | Virgil | 0 / 2 | planned (proven in scratch) |
-| schism | Scheme | 0 / 4 | planned (needs revival) |
+| webcc / basic_rs | C++ / Rust | 1 / 3 | ⛔ vendored-blocked (external lld / Binaryen FFI) |
 
 Host tooling used so far (all from the distro or built from source — note the
 GitHub release CDN / PyPI / Go module proxy are firewalled on the dev VM, so

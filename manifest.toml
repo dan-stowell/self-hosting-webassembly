@@ -71,10 +71,10 @@ upstream   = "https://github.com/schism-lang/schism"
 impl_lang  = "Scheme"
 backend    = "direct"
 tier       = 0
-effort     = 4                 # bitrotten (2020): pre-final wasm encodings, removed Node flags
-status     = "vendored"        # needs revival; see compilers/schism/notes.md
-artifact   = "dist/schism.wasm"
-host_deps  = ["node (period-correct ~v12) or guile", "+ codegen patches"]
+effort     = 3                 # revived: needs a pinned Node 12, no code changes
+status     = "self-hosting"    # revived under pinned Node 12; see notes.md
+artifact   = "schism-stage0.wasm (committed)"
+host_deps  = ["node 12 (pinned in tools/)"]
 
 # --- vendored but blocked: native-backend dependency wall (data points) ---
 
