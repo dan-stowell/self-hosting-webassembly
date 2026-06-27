@@ -7,7 +7,7 @@
 # temp dir and run from there.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
-root=$(git -C "$here" rev-parse --show-toplevel)
+root=$(cd "$here/../.." && pwd)
 W3="$root/tools/wasm3"
 in=${1:?usage: run-cc.sh <input.c> <output.wasm>}
 out=${2:?usage: run-cc.sh <input.c> <output.wasm>}

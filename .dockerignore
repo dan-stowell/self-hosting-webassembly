@@ -1,0 +1,9 @@
+.git
+tools/
+compilers/*/dist/
+compilers/xcc/src/obj/
+compilers/xcc/src/lib/*.a
+compilers/waforth/src/src/standalone/wasmtime-*/
+compilers/waforth/src/src/standalone/waforth
+compilers/waforth/src/src/standalone/*.o
+**/*.tar.xz

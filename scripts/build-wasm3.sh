@@ -12,7 +12,7 @@
 #
 # Host deps: gcc, git, and libuv1-dev (sudo apt install libuv1-dev).
 set -euo pipefail
-root=$(git -C "$(dirname "$0")/.." rev-parse --show-toplevel)
+root=$(cd "$(dirname "$0")/.." && pwd)
 tools="$root/tools"; mkdir -p "$tools"
 work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
 
@@ -24,17 +24,10 @@ git clone --quiet --depth 1 https://github.com/wasm3/wasm3   "$work/wasm3"
 git clone --quiet --depth 1 https://github.com/nodejs/uvwasi "$work/uvwasi"
 
 echo ">> patching wasm3 uvwasi preopens (+ \".\")"
-python3 - "$work/wasm3/source/m3_api_uvwasi.c" <<'PY'
-import sys
-p = sys.argv[1]; s = open(p).read()
-assert "#define PREOPENS_COUNT  2" in s, "wasm3 layout changed; update patch"
-s = s.replace("#define PREOPENS_COUNT  2", "#define PREOPENS_COUNT  3")
-s = s.replace(
-    '    preopens[1].mapped_path = "./";\n    preopens[1].real_path = ".";',
-    '    preopens[1].mapped_path = "./";\n    preopens[1].real_path = ".";\n'
-    '    preopens[2].mapped_path = ".";\n    preopens[2].real_path = ".";')
-open(p, "w").write(s)
-PY
+f="$work/wasm3/source/m3_api_uvwasi.c"
+grep -q '#define PREOPENS_COUNT  2' "$f" || { echo "ERROR: wasm3 layout changed; update patch"; exit 1; }
+sed -i 's/#define PREOPENS_COUNT  2/#define PREOPENS_COUNT  3/' "$f"
+sed -i '/preopens\[1\]\.real_path = ".";/a\    preopens[2].mapped_path = ".";\n    preopens[2].real_path = ".";' "$f"
 
 echo ">> compiling tools/wasm3"
 gcc -O2 -I"$work/wasm3/source" -I"$work/uvwasi/include" -Dd_m3HasUVWASI \

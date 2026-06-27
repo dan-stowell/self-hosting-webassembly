@@ -2,7 +2,7 @@
 # Build each "builds-to-wasm" compiler and smoke-test its compiler-as-wasm
 # artifact under the local wasm3 runtime. Run scripts/build-wasm3.sh first.
 set -uo pipefail
-root=$(git -C "$(dirname "$0")/.." rev-parse --show-toplevel)
+root=$(cd "$(dirname "$0")/.." && pwd)
 W3="$root/tools/wasm3"
 [ -x "$W3" ] || { echo "runtime missing — run scripts/build-wasm3.sh"; exit 1; }
 

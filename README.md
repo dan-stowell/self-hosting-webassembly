@@ -63,6 +63,16 @@ scripts/verify.sh         # build every builds-to-wasm compiler and smoke-test i
 `verify.sh` currently checks: `cc.wasm` runs as the C compiler, `wa.wasm`
 compiles a program to wasm, and `waforth.wasm` assembles.
 
+### Reproducibility (container)
+
+```sh
+docker build -t self-hosting-wasm .
+```
+
+The build installs the toolchain on a clean `ubuntu:24.04`, builds the wasm3
+runtime from source, and runs `scripts/verify.sh` — so a successful image build
+*is* the proof that the suite builds to wasm from scratch (3/3 pass).
+
 ## Status
 
 | Compiler | Lang | Tier/Effort | Status |
