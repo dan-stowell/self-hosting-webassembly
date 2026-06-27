@@ -77,6 +77,7 @@ runtime from source, and runs `scripts/verify.sh` — so a successful image buil
 
 | Compiler | Lang | Tier/Effort | Status |
 |---|---|---|---|
+| [assemblyscript](compilers/assemblyscript/notes.md) | AS (TS subset) | 0 / 2 | ✅ **self-hosting** — byte-identical fixed point; no LLVM (Binaryen-as-wasm) |
 | [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm; **end-to-end**: `cc.wasm` compiles C → wasm that runs |
 | [wa](compilers/wa/notes.md) (凹语言) | Go | 0 / 2 | ✅ builds-to-wasm (`dist/wa.wasm`); output **byte-identical** to native |
 | [waforth](compilers/waforth/notes.md) | wat | 0 / 2 | ✅ **end-to-end**: REPL compiles & runs Forth words as wasm at runtime |

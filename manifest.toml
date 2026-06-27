@@ -41,6 +41,17 @@ status     = "end-to-end"      # assembles; REPL host runs the wasm-resident com
 artifact   = "dist/waforth.wasm + dist/waforth"
 host_deps  = ["wat2wasm", "wasmtime C-API (build-host.sh)"]
 
+[[compiler]]
+name       = "assemblyscript"
+upstream   = "https://github.com/AssemblyScript/assemblyscript"
+impl_lang  = "portable AssemblyScript (TS subset)"
+backend    = "Binaryen shipped AS wasm (binaryen npm pkg), via C-API; no LLVM"
+tier       = 0
+effort     = 2
+status     = "self-hosting"    # byte-identical fixed point verified; the flagship
+artifact   = "dist/asc.wasm + dist/asc.wasm.js"
+host_deps  = ["node>=20.19", "npm"]
+
 # --- next up (verified easy wins from candidates.md, not yet vendored) ---
 
 [[compiler]]

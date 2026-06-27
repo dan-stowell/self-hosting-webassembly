@@ -1,0 +1,5 @@
+upstream:   https://github.com/AssemblyScript/assemblyscript
+commit:     18b17a7ade0b9f03b80f63e3235f5ce6f43e5562
+authored:   2026-06-11
+vendored:   2026-06-27
+license:    LICENSE

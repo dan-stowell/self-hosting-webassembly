@@ -20,3 +20,8 @@ compilers/waforth/src/src/standalone/*.tar.xz
 compilers/waforth/src/src/standalone/waforth
 compilers/waforth/src/src/standalone/waforth_core.wasm
 compilers/waforth/src/src/standalone/waforth_core.h
+
+# AssemblyScript build outputs (node toolchain in tools/ also ignored)
+compilers/assemblyscript/src/node_modules/
+compilers/assemblyscript/src/build/
+compilers/assemblyscript/src/dist/

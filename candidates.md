@@ -12,6 +12,7 @@ wasm-emitting toolchain.
 >
 > | Compiler | Lang | Result |
 > |---|---|---|
+> | **assemblyscript** | AS | ✅ **self-hosting** — `asc.wasm` recompiles its own source to a byte-identical fixed point; no LLVM (Binaryen ships as wasm) |
 > | **xcc** | C | ✅ end-to-end — `cc.wasm` compiles C → wasm that runs |
 > | **wa** (凹语言) | Go | ✅ `GOOS=wasip1` build; output **byte-identical** to native |
 > | **waforth** | wat | ✅ end-to-end — REPL compiles & runs Forth words as wasm at runtime |
