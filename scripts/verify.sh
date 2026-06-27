@@ -40,6 +40,14 @@ else
   echo "  SKIP: REPL host not built (run compilers/waforth/build-host.sh)"
 fi
 
+echo "[assemblyscript] self-hosting compiler as wasm"
+asc="$root/compilers/assemblyscript/dist/asc.wasm"
+if [ -f "$asc" ]; then
+  iswasm "$asc" && ok "asc.wasm present & valid (self-host proven by build.sh)" || no "asc.wasm invalid"
+else
+  echo "  SKIP: not built (run compilers/assemblyscript/build.sh; needs Node >=20.19)"
+fi
+
 echo
 echo "verify: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
