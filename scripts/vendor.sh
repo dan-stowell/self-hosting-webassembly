@@ -46,6 +46,12 @@ vendored:   $(date +%F)
 license:    ${license:-UNKNOWN — check upstream}
 EOF
 
+# Stage the pristine import with -f: vendored upstreams ship their own
+# .gitignore files which would otherwise hide upstream-tracked files (example
+# assets, testdata, even some source) from our commits. Force-add at import
+# time, while the tree is pristine (pre-build), captures everything faithfully.
+git -C "$root" add -f "compilers/$name/src" "$dest/UPSTREAM"
+
 echo ">> vendored to compilers/$name/src  (commit ${sha:0:12}, $cdate)"
-echo ">> wrote compilers/$name/UPSTREAM"
+echo ">> wrote compilers/$name/UPSTREAM, staged with git add -f"
 [ -f "$dest/build.sh" ] || echo ">> NOTE: no build.sh yet — add compilers/$name/build.sh"
