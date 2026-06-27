@@ -1,0 +1,5 @@
+upstream:   https://github.com/schism-lang/schism
+commit:     7fbb9ce0f663ddef76c36cde27fa3326c080beb7
+authored:   2020-06-02
+vendored:   2026-06-27
+license:    LICENSE

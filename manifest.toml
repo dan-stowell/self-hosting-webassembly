@@ -61,6 +61,6 @@ impl_lang  = "Scheme"
 backend    = "direct"
 tier       = 0
 effort     = 4                 # bitrotten (2020): pre-final wasm encodings, removed Node flags
-status     = "planned"
+status     = "vendored"        # needs revival; see compilers/schism/notes.md
 artifact   = "dist/schism.wasm"
 host_deps  = ["node (period-correct ~v12) or guile", "+ codegen patches"]
