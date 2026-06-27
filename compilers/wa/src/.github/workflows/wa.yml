@@ -1,0 +1,89 @@
+# 版权 @2022 凹语言 作者。保留所有权利。
+
+name: Wa
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - "releases/*"
+jobs:
+  build-and-test-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - run: go version
+      - run: go env
+
+      - run: make ci-test-all
+
+      - run: go test -v -coverprofile=profile.cov ./...
+
+      - run: go install
+
+      - run: wa -h
+      - run: cd waroot && wa run examples/prime
+      - run: cd waroot && wa run hello.wa
+      - run: cd waroot && wa run hello.wz
+      - run: cd waroot && wa run -target=unknown hello.wa 
+
+  build-and-test-windows:
+    # https://github.com/actions/runner-images
+    runs-on: windows-2022
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - run: go version
+      - run: go env
+
+      - run: make ci-test-all
+
+      - run: go test -v ./...
+
+      - run: go install
+
+      - run: wa -h
+      - run: cd waroot && wa run examples/prime
+      - run: cd waroot && wa run hello.wa
+      - run: cd waroot && wa run hello.wz
+      - run: cd waroot && wa run -target=unknown hello.wa 
+
+  build-and-test-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - run: go version
+      - run: go env
+
+      - run: make ci-test-all
+
+      - run: go test -v ./...
+
+      - run: go install
+
+      - run: wa -h
+      - run: cd waroot && wa run examples/prime
+      - run: cd waroot && wa run  hello.wa
+      - run: cd waroot && wa run  hello.wz
+      - run: cd waroot && wa run -target=unknown hello.wa 

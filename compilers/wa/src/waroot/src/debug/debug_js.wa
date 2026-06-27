@@ -1,0 +1,30 @@
+// Copyright (C) 2024 武汉凹语言科技有限公司
+// SPDX-License-Identifier: MIT
+
+import "unsafe"
+
+#wa:import syscall_js debug_read_file_len
+func debug_read_file_len(name_ptr, name_len: i32) => i32
+
+#wa:import syscall_js debug_read_file_data
+func debug_read_file_data(name_ptr, name_len, data_ptr, data_len: i32)
+
+#wa:import syscall_js debug_write_file
+func debug_write_file(name_ptr, name_len, data_ptr, data_len: i32)
+
+func ReadFile(name: string) => []byte {
+	size := debug_read_file_len(unsafe.StringData(name), i32(len(name)))
+	data := make([]byte, size)
+	debug_read_file_data(
+		unsafe.StringData(name), i32(len(name)),
+		unsafe.SliceData(data), i32(len(data)),
+	)
+	return data
+}
+
+func WriteFile(name: string, data: []byte) {
+	debug_write_file(
+		unsafe.StringData(name), i32(len(name)),
+		unsafe.SliceData(data), i32(len(data)),
+	)
+}

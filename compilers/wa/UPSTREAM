@@ -1,0 +1,5 @@
+upstream:   https://github.com/wa-lang/wa
+commit:     68289efad08785938a1ea5225c23d0fcbf5bb9cb
+authored:   2026-04-27
+vendored:   2026-06-27
+license:    LICENSE

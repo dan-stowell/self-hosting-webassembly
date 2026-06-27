@@ -1,0 +1,79 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{github.repository == 'wa-lang/wa'}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          # go1.21 support wasip1/wasm
+          # go1.24 support wasmexport
+          go-version: 1.24
+
+      - run: make wasm-js
+      - run: make wasm-wasip1
+      - run: make -C waroot/examples/snake publish
+      - run: make -C waroot/examples/w4-snake publish
+      - run: make -C waroot/examples/w4-snake-wz publish
+      - run: make -C waroot/examples/w4-2048 publish
+      - run: make -C waroot/examples/w4-tic-tac-toe publish
+      - run: make -C waroot/examples/w4-tetris publish
+      - run: make -C waroot/examples/w4-pong publish
+      - run: make -C waroot/examples/w4-life publish
+      - run: make -C waroot/examples/w4-rocket publish
+      - run: make -C waroot/examples/w4-magnifying-glass publish
+      - run: make -C waroot/examples/brainfuck publish
+      - run: make -C waroot/examples/p5-hello-wz publish
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.WA_DEPLOY }}
+          publish_dir: docs
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+
+  build-push-docker:
+    runs-on: ubuntu-latest
+    if: ${{github.repository == 'wa-lang/wa'}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          # go1.21 support wasip1/wasm
+          # go1.24 support wasmexport
+          go-version: 1.24
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.WA_DEPLOY_DOCKER}}
+
+      - name: 'Build Wa Image'
+        run: |
+          go build
+          docker build . --tag ghcr.io/wa-lang/wa:latest
+          docker push ghcr.io/wa-lang/wa:latest
+

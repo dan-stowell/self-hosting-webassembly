@@ -1,0 +1,5 @@
+upstream:   https://github.com/remko/waforth
+commit:     3b337010bfc81ae8fc5168040b3887406d2c2e19
+authored:   2025-07-15
+vendored:   2026-06-27
+license:    LICENSE.txt

@@ -1,0 +1,6 @@
+*.env.c
+*.env.s
+*.wa.s
+*.wz.s
+*.wat
+*.exe

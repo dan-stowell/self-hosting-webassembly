@@ -54,8 +54,9 @@ Built artifacts (`dist/`, in-tree object files) are git-ignored and reproducible
 
 | Compiler | Lang | Tier/Effort | Status |
 |---|---|---|---|
-| [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm (`dist/cc.wasm`) |
-| waforth | wat | 0 / 2 | planned |
+| [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm (`dist/cc.wasm`); runs as `wcc` under wasm3 |
+| [wa](compilers/wa/notes.md) (凹语言) | Go | 0 / 2 | ✅ builds-to-wasm (`dist/wa.wasm`); output **byte-identical** to native |
+| [waforth](compilers/waforth/notes.md) | wat | 0 / 2 | ✅ builds-to-wasm (`dist/waforth.wasm`); running needs a host |
 | virgil | Virgil | 0 / 2 | planned (proven in scratch) |
 | schism | Scheme | 0 / 4 | planned (needs revival) |
 

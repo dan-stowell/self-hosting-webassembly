@@ -1,0 +1,674 @@
+// Copyright (C) 2025 武汉凹语言科技有限公司
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+package parser
+
+import (
+	"wa-lang.org/wa/internal/native/abi"
+	"wa-lang.org/wa/internal/native/ast"
+	"wa-lang.org/wa/internal/native/loong64"
+	"wa-lang.org/wa/internal/native/token"
+)
+
+func (p *parser) parseInst_loong(fn *ast.Func) (inst *ast.Instruction) {
+	assert(p.cpu == abi.LOONG64)
+
+	inst = new(ast.Instruction)
+	inst.Arg = new(abi.AsArgument)
+
+	inst.CPU = p.cpu
+	inst.Doc = p.parseDocComment(&fn.Body.Comments, inst.Pos)
+	if inst.Doc != nil {
+		fn.Body.Objects = fn.Body.Objects[:len(fn.Body.Objects)-1]
+	}
+
+	defer func() {
+		inst.Comment = p.parseTailComment(inst.Pos)
+		p.consumeSemicolonList()
+	}()
+
+	if p.tok == token.IDENT {
+		inst.Pos = p.pos
+		inst.Label = p.parseIdent()
+		p.acceptToken(token.COLON)
+
+		// 后续如果不是指令则结束
+		if !p.tok.IsAs() {
+			return inst
+		}
+	}
+
+	inst.Pos = p.pos
+	inst.AsName = p.lit
+	inst.As = p.parseAs()
+
+	// 查询指令的参数格式
+	if !loong64.AsValid(inst.As) {
+		p.errorf(p.pos, "%v is not loongarch instruction", inst.As)
+	}
+
+	switch loong64.AsFormatType(inst.As) {
+	case loong64.OpFormatType_NULL:
+		return inst
+	case loong64.OpFormatType_2R:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		return inst
+	case loong64.OpFormatType_2F:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = fj
+		return inst
+	case loong64.OpFormatType_1F_1R:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = rj
+		return inst
+	case loong64.OpFormatType_1R_1F:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = fj
+		return inst
+	case loong64.OpFormatType_3R:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		return inst
+	case loong64.OpFormatType_3F:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fk := p.parseRegF_loong(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = fj
+		inst.Arg.Rs2 = fk
+		return inst
+	case loong64.OpFormatType_1F_2R:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		return inst
+	case loong64.OpFormatType_4F:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fk := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fa := p.parseRegF_loong(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = fj
+		inst.Arg.Rs2 = fk
+		inst.Arg.Rs3 = fa
+		return inst
+
+	case loong64.OpFormatType_2R_ui5:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		ui5, ui5Symbol := p.parseInst_loong_imm_ui5()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = ui5
+		inst.Arg.Symbol = ui5Symbol
+		return inst
+	case loong64.OpFormatType_2R_ui6:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		ui6, ui6Symbol := p.parseInst_loong_imm_ui6()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = ui6
+		inst.Arg.Symbol = ui6Symbol
+		return inst
+	case loong64.OpFormatType_2R_si12:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		si12, si12Symbol, symbolDecor := p.parseInst_loong_imm_si12(fn)
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = si12
+		inst.Arg.Symbol = si12Symbol
+		inst.Arg.SymbolDecor = symbolDecor
+		return inst
+
+	case loong64.OpFormatType_1F_1R_si12:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		si12, si12Symbol, symbolDecor := p.parseInst_loong_imm_si12(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = si12
+		inst.Arg.Symbol = si12Symbol
+		inst.Arg.SymbolDecor = symbolDecor
+		return inst
+
+	case loong64.OpFormatType_2R_ui12:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		ui12, ui12Symbol, symbolDecor := p.parseInst_loong_imm_ui12()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = ui12
+		inst.Arg.Symbol = ui12Symbol
+		inst.Arg.SymbolDecor = symbolDecor
+		return inst
+	case loong64.OpFormatType_2R_si14:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		si14, si14Symbol := p.parseInst_loong_imm_si14()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = si14
+		inst.Arg.Symbol = si14Symbol
+		return inst
+	case loong64.OpFormatType_1R_si20:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		si20, si20Symbol, si20SymbolDecor := p.parseInst_loong_imm_si20()
+		inst.Arg.Rd = rd
+		inst.Arg.Imm = si20
+		inst.Arg.Symbol = si20Symbol
+		inst.Arg.SymbolDecor = si20SymbolDecor
+		return inst
+	case loong64.OpFormatType_0_2R:
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		return inst
+	case loong64.OpFormatType_3R_sa2:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		sa2, sa2Symbol := p.parseInst_loong_imm_sa2()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		inst.Arg.Imm = sa2
+		inst.Arg.Symbol = sa2Symbol
+		return inst
+	case loong64.OpFormatType_3R_sa3:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		sa3, sa3Symbol := p.parseInst_loong_imm_sa3()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		inst.Arg.Imm = sa3
+		inst.Arg.Symbol = sa3Symbol
+		return inst
+	case loong64.OpFormatType_code:
+		code, codeSymbol := p.parseInst_loong_imm_code_15bit()
+		inst.Arg.Imm = code
+		inst.Arg.Symbol = codeSymbol
+		return inst
+
+	case loong64.OpFormatType_code_1R_si12:
+		code, codeSymbol := p.parseInst_loong_imm_code_5bit()
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		si12, si12Symbol, ui12SymbolDecor := p.parseInst_loong_imm_si12(fn)
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rd = abi.RegType(code) // Rd 寄存器参数位置用于记录 code
+		inst.Arg.RdName = codeSymbol
+		inst.Arg.Imm = si12
+		inst.Arg.Symbol = si12Symbol
+		inst.Arg.SymbolDecor = ui12SymbolDecor
+		return inst
+
+	case loong64.OpFormatType_2R_msbw_lsbw:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		msbw, msbwSymbol := p.parseInst_loong_imm_msbw_5bit()
+		p.acceptToken(token.COMMA)
+		lsbw, lsbwSymbol := p.parseInst_loong_imm_lsbw_5bit()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = abi.RegType(msbw) // Rs2 寄存器参数位置用于记录 msbw
+		inst.Arg.Rs2Name = msbwSymbol
+		inst.Arg.Rs3 = abi.RegType(lsbw) // Rs3 寄存器参数位置用于记录 lsbw
+		inst.Arg.Rs3Name = lsbwSymbol
+		return inst
+	case loong64.OpFormatType_2R_msbd_lsbd:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		msbd, msbdSymbol := p.parseInst_loong_imm_msbd_6bit()
+		p.acceptToken(token.COMMA)
+		lsbd, lsbdSymbol := p.parseInst_loong_imm_lsbd_6bit()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = abi.RegType(msbd) // Rs2 寄存器参数位置用于记录 msbd
+		inst.Arg.Rs2Name = msbdSymbol
+		inst.Arg.Rs3 = abi.RegType(lsbd) // Rs3 寄存器参数位置用于记录 lsbd
+		inst.Arg.Rs3Name = lsbdSymbol
+		return inst
+	case loong64.OpFormatType_fcsr_1R:
+		fcsr := p.parseRegFCSR_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		inst.Arg.Rd = fcsr
+		inst.Arg.Rs1 = rj
+		return inst
+	case loong64.OpFormatType_1R_fcsr:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		fcsr := p.parseRegFCSR_loong(fn)
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = fcsr
+		return inst
+
+	case loong64.OpFormatType_cd_1R:
+		cd := p.parseRegFCC_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		inst.Arg.Rd = cd
+		inst.Arg.Rs1 = rj
+		return inst
+	case loong64.OpFormatType_cd_1F:
+		cd := p.parseRegFCC_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		inst.Arg.Rd = cd
+		inst.Arg.Rs1 = fj
+		return inst
+	case loong64.OpFormatType_cd_2F:
+		cd := p.parseRegFCC_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fk := p.parseRegF_loong(fn)
+		inst.Arg.Rd = cd
+		inst.Arg.Rs1 = fj
+		inst.Arg.Rs2 = fk
+		return inst
+	case loong64.OpFormatType_1R_cj:
+		// BUG: movcf2gr $t0, $fcc0
+		// 一组至少有 4 个类似的指令, 条件寄存器的名字缺少
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		cj := p.parseRegFCC_loong(fn)
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = cj
+		return inst
+	case loong64.OpFormatType_1F_cj:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		cj := p.parseRegFCC_loong(fn)
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = cj
+		return inst
+	case loong64.OpFormatType_1R_csr:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		csr, csrSymbol := p.parseInst_loong_imm_csr_14bit()
+		inst.Arg.Rd = rd
+		inst.Arg.Imm = csr // CSR 作为 imm 记录, 没有宏修饰
+		inst.Arg.Symbol = csrSymbol
+		return inst
+	case loong64.OpFormatType_2R_csr:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		csr, csrSymbol := p.parseInst_loong_imm_csr_14bit()
+		if rj == loong64.REG_R0 || rj != loong64.REG_R1 {
+			p.errorf(p.pos, "%v: rj(%v) can notequal 0 or 1", inst.As, rj)
+		}
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = csr // CSR 作为 imm 记录, 没有宏修饰
+		inst.Arg.Symbol = csrSymbol
+		return inst
+	case loong64.OpFormatType_2R_level:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		level, levelSymbol := p.parseInst_loong_imm_level_8bit()
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = level
+		inst.Arg.Symbol = levelSymbol
+		return inst
+	case loong64.OpFormatType_level:
+		level, levelSymbol := p.parseInst_loong_imm_level_15bit()
+		inst.Arg.Imm = level
+		inst.Arg.Symbol = levelSymbol
+		return inst
+	case loong64.OpFormatType_0_1R_seq:
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		seq, seqSymbol := p.parseInst_loong_imm_seq_8bit()
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = seq
+		inst.Arg.Symbol = seqSymbol
+		return inst
+	case loong64.OpFormatType_op_2R:
+		op, opSymbol := p.parseInst_loong_imm_op_5bit()
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		inst.Arg.Rd = abi.RegType(op) // Rd 寄存器存放 op
+		inst.Arg.RdName = opSymbol
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		return inst
+	case loong64.OpFormatType_3F_ca:
+		fd := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fj := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		fk := p.parseRegF_loong(fn)
+		p.acceptToken(token.COMMA)
+		ca, caSymbol := p.parseInst_loong_imm_ca_3bit()
+		inst.Arg.Rd = fd
+		inst.Arg.Rs1 = fj
+		inst.Arg.Rs2 = fk
+		inst.Arg.Imm = ca
+		inst.Arg.Symbol = caSymbol
+		return inst
+	case loong64.OpFormatType_hint_1R_si12:
+		hint, hintSymbol := p.parseInst_loong_imm_hint_5bit()
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		si12, si12Symbol, ui12SymbolDecor := p.parseInst_loong_imm_si12(fn)
+		inst.Arg.Rd = abi.RegType(hint) // Rd 寄存器保存 hint
+		inst.Arg.RdName = hintSymbol
+		inst.Arg.Rs1 = rj
+		inst.Arg.Imm = si12
+		inst.Arg.Symbol = si12Symbol
+		inst.Arg.SymbolDecor = ui12SymbolDecor
+		return inst
+	case loong64.OpFormatType_hint_2R:
+		hint, hintSymbol := p.parseInst_loong_imm_hint_5bit()
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rk := p.parseRegI_loong(fn)
+		inst.Arg.Rd = abi.RegType(hint) // Rd 寄存器保存 hint
+		inst.Arg.RdName = hintSymbol
+		inst.Arg.Rs1 = rj
+		inst.Arg.Rs2 = rk
+		return inst
+	case loong64.OpFormatType_hint:
+		hint, hintSymbol := p.parseInst_loong_imm_hint_15bit()
+		inst.Arg.Imm = hint
+		inst.Arg.Symbol = hintSymbol
+		return inst
+
+	case loong64.OpFormatType_cj_offset:
+		cj := p.parseRegFCC_loong(fn)
+		p.acceptToken(token.COMMA)
+		off, offSymbol := p.parseInst_loong_imm_offset()
+		inst.Arg.Imm = off
+		inst.Arg.Rs1 = cj
+		inst.Arg.Symbol = offSymbol
+		return inst
+	case loong64.OpFormatType_rj_offset:
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		off, offSymbol := p.parseInst_loong_imm_offset()
+		inst.Arg.Imm = off
+		inst.Arg.Rs1 = rj
+		inst.Arg.Symbol = offSymbol
+		return inst
+	case loong64.OpFormatType_rj_rd_offset:
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		off, offSymbol := p.parseInst_loong_imm_offset()
+		inst.Arg.Imm = off
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Symbol = offSymbol
+		return inst
+	case loong64.OpFormatType_rd_rj_offset:
+		rd := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		rj := p.parseRegI_loong(fn)
+		p.acceptToken(token.COMMA)
+		off, offSymbol := p.parseInst_loong_imm_offset()
+		inst.Arg.Imm = off
+		inst.Arg.Rd = rd
+		inst.Arg.Rs1 = rj
+		inst.Arg.Symbol = offSymbol
+		return inst
+	case loong64.OpFormatType_offset:
+		off, offSymbol := p.parseInst_loong_imm_offset()
+		inst.Arg.Imm = off
+		inst.Arg.Symbol = offSymbol
+		return inst
+
+	default:
+		panic("unreachable")
+	}
+}
+
+func (p *parser) parseRegI_loong(fn *ast.Func) abi.RegType {
+	x := p.parseRegister()
+	if x < loong64.REG_R0 || x > loong64.REG_R31 {
+		p.errorf(p.pos, "%v is not loongarch int register", x)
+	}
+	return x
+}
+
+func (p *parser) parseRegF_loong(fn *ast.Func) abi.RegType {
+	x := p.parseRegister()
+	if x < loong64.REG_F0 || x > loong64.REG_F31 {
+		p.errorf(p.pos, "%v is not loongarch float register", x)
+	}
+	return x
+}
+
+func (p *parser) parseRegFCSR_loong(fn *ast.Func) abi.RegType {
+	x := p.parseRegister()
+	if x < loong64.REG_FCSR0 || x > loong64.REG_FCSR3 {
+		p.errorf(p.pos, "%v is not loongarch fcsr register", x)
+	}
+	return x
+}
+
+func (p *parser) parseRegFCC_loong(fn *ast.Func) abi.RegType {
+	x := p.parseRegister()
+	if x < loong64.REG_FCC0 || x > loong64.REG_FCC7 {
+		p.errorf(p.pos, "%v is not loongarch fcc register", x)
+	}
+	return x
+}
+
+func (p *parser) parseInst_loong_imm_ui5() (ui5 int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_ui6() (ui6 int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_si12(fn *ast.Func) (s12 int32, symbol string, symbolDecor abi.BuiltinFn) {
+	return p.parseInst_loong_immOrSymbolDecor()
+}
+
+// 只有 ui12 和 si20 指令支持宏修饰函数
+func (p *parser) parseInst_loong_imm_ui12() (ui12 int32, symbol string, symbolDecor abi.BuiltinFn) {
+	return p.parseInst_loong_immOrSymbolDecor()
+}
+
+func (p *parser) parseInst_loong_imm_si14() (si14 int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+// 只有 ui12 和 si20 指令支持宏修饰函数
+func (p *parser) parseInst_loong_imm_si20() (si20 int32, symbol string, symbolDecor abi.BuiltinFn) {
+	return p.parseInst_loong_immOrSymbolDecor()
+}
+
+// 汇编程序中跳转地址必须用符号表示(因为很难手工获取PC相对地址)
+func (p *parser) parseInst_loong_imm_offset() (si16 int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_sa2() (sa2 int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_sa3() (sa3 int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_code_5bit() (code int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_code_15bit() (code int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_msbw_5bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_lsbw_5bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_msbd_6bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_lsbd_6bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_imm_csr_14bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_level_8bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_level_15bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_seq_8bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_op_5bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_ca_3bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_hint_5bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+func (p *parser) parseInst_loong_imm_hint_15bit() (x int32, symbol string) {
+	return p.parseInst_loong_immOrSymbol()
+}
+
+func (p *parser) parseInst_loong_immOrSymbol() (imm int32, symbol string) {
+	switch p.tok {
+	case token.SUB:
+		p.next()
+		imm = 0 - p.parseInt32Lit()
+		return
+	case token.INT:
+		imm = p.parseInt32Lit()
+		return
+	case token.IDENT:
+		symbol = p.parseIdent()
+		return
+	default:
+		p.errorf(p.pos, "expect label or int, got %v", p.tok)
+	}
+	panic("unreachable")
+}
+
+func (p *parser) parseInst_loong_immOrSymbolDecor() (imm int32, symbol string, symbolDecor abi.BuiltinFn) {
+	if p.tok == token.SUB {
+		p.next()
+		imm = 0 - p.parseInt32Lit()
+		return
+	}
+	if p.tok == token.INT {
+		imm = p.parseInt32Lit()
+		return
+	}
+
+	if p.tok != token.IDENT {
+		p.errorf(p.pos, "export IDENT, got %v/%s", p.tok, p.lit)
+	}
+
+	pos := p.pos
+	symbolOrDecor := p.parseIdent()
+
+	// 没有重定位修饰函数
+	if p.tok != token.LPAREN {
+		symbol = symbolOrDecor
+		return
+	}
+
+	// 判断重定位修饰函数
+	if fn := abi.ParseBuiltinFn(p.prog.CPU, symbolOrDecor); fn != abi.BuiltinFn_Nil {
+		symbolDecor = fn
+	} else {
+		p.errorf(pos, "unknow symbol decorator %s", symbolOrDecor)
+	}
+
+	p.acceptToken(token.LPAREN)
+	defer p.acceptToken(token.RPAREN)
+
+	switch p.tok {
+	case token.INT:
+		imm = p.parseInt32Lit()
+		return
+	case token.IDENT:
+		symbol = p.parseIdent()
+		return
+	default:
+		p.errorf(p.pos, "expect label or int, got %v", p.tok)
+	}
+	panic("unreachable")
+}

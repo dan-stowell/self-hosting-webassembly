@@ -1,0 +1,68 @@
+// Copyright (C) 2024 武汉凹语言科技有限公司
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+package appplay
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+
+	"wa-lang.org/wa/api"
+	"wa-lang.org/wa/internal/token"
+	"wa-lang.org/wa/internal/xlang"
+)
+
+func (p *WebServer) runHandler(w http.ResponseWriter, r *http.Request) {
+	var req Request
+	version := r.PostFormValue("version")
+	if version == "2" {
+		req.Body = r.PostFormValue("body")
+	} else {
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, fmt.Sprintf("error decoding request: %v", err), http.StatusBadRequest)
+			return
+		}
+	}
+	resp, err := p.compileAndRun(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (p *WebServer) compileAndRun(req *Request) (*Response, error) {
+	tmpDir, err := ioutil.TempDir("", "sandbox")
+	if err != nil {
+		return nil, fmt.Errorf("error creating temp directory: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	filename := "prog.wa"
+	if xlang.DetectLang(filename, []byte(req.Body)) == token.LangType_Wz {
+		filename = "prog.wz"
+	}
+
+	result, err := api.RunCode(api.DefaultConfig(), filename, req.Body, "")
+	if err != nil {
+		resp := &Response{Errors: err.Error()}
+		return resp, nil
+	}
+
+	resp := &Response{
+		Events: []Event{
+			{
+				Message: string(result),
+				Kind:    "stdout",
+			},
+		},
+	}
+
+	return resp, nil
+}

@@ -19,7 +19,16 @@ status     = "builds-to-wasm"
 artifact   = "dist/cc.wasm"
 host_deps  = ["gcc", "make", "llvm-ar"]
 
-# --- next up (verified easy wins from candidates.md, not yet vendored) ---
+[[compiler]]
+name       = "wa"               # 凹语言
+upstream   = "https://github.com/wa-lang/wa"
+impl_lang  = "Go"
+backend    = "direct"          # own wasm backend, no LLVM
+tier       = 0
+effort     = 2
+status     = "builds-to-wasm"  # output verified byte-identical to native wa
+artifact   = "dist/wa.wasm"
+host_deps  = ["go>=1.17"]      # stdlib only; GOOS=wasip1 cross-compiles
 
 [[compiler]]
 name       = "waforth"
@@ -28,9 +37,11 @@ impl_lang  = "WebAssembly (wat)"
 backend    = "direct"
 tier       = 0
 effort     = 2
-status     = "planned"
+status     = "builds-to-wasm"  # assembles; running needs a host for shell.* imports
 artifact   = "dist/waforth.wasm"
 host_deps  = ["wat2wasm"]      # + a host for its 6 shell.* imports
+
+# --- next up (verified easy wins from candidates.md, not yet vendored) ---
 
 [[compiler]]
 name       = "virgil"
