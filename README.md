@@ -78,8 +78,19 @@ scripts/build-wasm3.sh    # -> tools/wasm3  (needs gcc + libuv1-dev)
 scripts/verify.sh         # build every builds-to-wasm compiler and smoke-test it
 ```
 
-`verify.sh` currently checks: `cc.wasm` runs as the C compiler, `wa.wasm`
-compiles a program to wasm, and `waforth.wasm` assembles.
+Two levels of checking:
+
+- **`scripts/verify.sh`** (fast smoke test, 6/6): each compiler *running as wasm*
+  produces working output — `cc.wasm` compiles C→wasm that runs, `wa.wasm`
+  compiles a program, `waforth` compiles & runs a Forth word, `schism` self-hosts
+  through its stages, `asc.wasm` compiles TS→wasm that runs `fib(10)=55`.
+- **`scripts/confirm-selfhost.sh`** (slower, the gold standard): the genuinely
+  self-hosting compilers *reproduce themselves*:
+  - **AssemblyScript** — `asc.wasm` recompiles its own source to a **byte-identical**
+    919,676-byte fixed point.
+  - **xcc** — `cc.wasm` (which is `wcc` compiled from `wcc`'s own C source) compiles
+    C to a working wasm module.
+  - **Schism** — `stage0.wasm` compiles `compiler.ss` through stage1→stage2.
 
 ### Reproducibility (container)
 
