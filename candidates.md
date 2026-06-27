@@ -5,6 +5,28 @@ compiler *itself* runs as a WASM module — either by self-hosting (the compiler
 compiles itself, since it already targets wasm) or by compiling it with another
 wasm-emitting toolchain.
 
+> **Build results so far** (vendored + built in this repo; see `manifest.toml`,
+> `scripts/verify.sh`). The empirical data confirms the thesis below: the wall is
+> **native-backend dependencies (LLVM / Binaryen / external linker)**, not repo
+> size or implementation language per se.
+>
+> | Compiler | Lang | Result |
+> |---|---|---|
+> | **xcc** | C | ✅ end-to-end — `cc.wasm` compiles C → wasm that runs |
+> | **wa** (凹语言) | Go | ✅ `GOOS=wasip1` build; output **byte-identical** to native |
+> | **waforth** | wat | ✅ end-to-end — REPL compiles & runs Forth words as wasm at runtime |
+> | **schism** | Scheme | 🅥 vendored; needs revival (2019-era encodings + removed Node flags) |
+> | **webcc** | C++ | ⛔ blocked — own codegen but **execs `lld`** to link |
+> | **basic_rs** | Rust | ⛔ blocked — `basic2wasm` uses the **`binaryen` crate** (native FFI) |
+>
+> The clean wins (xcc/wa/waforth) are all **self-contained, no native backend**.
+> The blocked ones (webcc/basic_rs) emit wasm but can't *run* as wasm because they
+> reach out to a native linker/Binaryen — the same wall as the LLVM-based Tier 3.
+> Go's `GOOS=wasip1` is the single cleanest route when a compiler is written in Go
+> with no cgo. Tooling note: the dev VM's egress was briefly firewalled to the
+> GitHub release CDN / package registries (forcing `apt` + `git clone` + a
+> built-from-source wasm3); that has since been restored.
+
 ## How to read the ranking
 
 Repo size (from the GitHub API) is the user's stand-in for complexity, but it's
