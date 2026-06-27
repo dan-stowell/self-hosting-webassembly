@@ -48,10 +48,19 @@ else
   echo "  SKIP: Node 12 not in tools/ (nodejs.org/dist/v12.22.12)"
 fi
 
-echo "[assemblyscript] self-hosting compiler as wasm"
-asc="$root/compilers/assemblyscript/dist/asc.wasm"
-if [ -f "$asc" ]; then
-  iswasm "$asc" && ok "asc.wasm present & valid (self-host proven by build.sh)" || no "asc.wasm invalid"
+echo "[assemblyscript] self-hosting compiler as wasm (compile + run via asc.wasm)"
+asloader="$root/compilers/assemblyscript/src/build/assemblyscript.release.js"
+ASNODE=$(ls -d "$root"/tools/node-v2*/bin 2>/dev/null | head -1)
+if [ -f "$asloader" ] && [ -n "$ASNODE" ]; then
+  tmp=$(mktemp -d)
+  printf 'export function fib(n: i32): i32 { return n < 2 ? n : fib(n-1) + fib(n-2); }\n' > "$tmp/f.ts"
+  if "$root/compilers/assemblyscript/run-asc.sh" "$tmp/f.ts" "$tmp/f.wasm" >/dev/null 2>&1 && iswasm "$tmp/f.wasm"; then
+    r=$(PATH="$ASNODE:$PATH" node -e "WebAssembly.instantiate(require('fs').readFileSync('$tmp/f.wasm'),{}).then(x=>console.log(x.instance.exports.fib(10)))" 2>/dev/null)
+    [ "$r" = "55" ] && ok "asc.wasm compiled TS -> wasm, output runs (fib(10)=$r)" || no "asc.wasm ran but fib=>$r"
+  else
+    no "asc.wasm did not compile TS to wasm"
+  fi
+  rm -rf "$tmp"
 else
   echo "  SKIP: not built (run compilers/assemblyscript/build.sh; needs Node >=20.19)"
 fi

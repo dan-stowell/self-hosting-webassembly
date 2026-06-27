@@ -25,6 +25,9 @@ cd "$src"
 npm run build            # dist/asc.js (the JS compiler bundle)
 npm run asbuild:release  # build/assemblyscript.release.{wasm,js}
 
+# The runnable compiler is the loader+wasm pair in src/build/ (the loader
+# resolves its sibling wasm + the binaryen wasm from node_modules); use
+# run-asc.sh to drive it. dist/asc.wasm is the raw module, for inspection.
 cp build/assemblyscript.release.wasm "$dist/asc.wasm"
-cp build/assemblyscript.release.js   "$dist/asc.wasm.js"
 echo ">> wrote $dist/asc.wasm ($(du -h "$dist/asc.wasm" | cut -f1))"
+echo ">> run the self-hosted compiler with: compilers/assemblyscript/run-asc.sh in.ts out.wasm"
