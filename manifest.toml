@@ -15,7 +15,7 @@ impl_lang  = "C"
 backend    = "direct"          # own wasm emitter + linker, no LLVM
 tier       = 0
 effort     = 2
-status     = "builds-to-wasm"
+status     = "end-to-end"     # cc.wasm compiles C -> wasm that runs
 artifact   = "dist/cc.wasm"
 host_deps  = ["gcc", "make", "llvm-ar"]
 
@@ -26,7 +26,7 @@ impl_lang  = "Go"
 backend    = "direct"          # own wasm backend, no LLVM
 tier       = 0
 effort     = 2
-status     = "builds-to-wasm"  # output verified byte-identical to native wa
+status     = "end-to-end"      # output verified byte-identical to native wa
 artifact   = "dist/wa.wasm"
 host_deps  = ["go>=1.17"]      # stdlib only; GOOS=wasip1 cross-compiles
 
