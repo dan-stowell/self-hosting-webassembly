@@ -1,0 +1,5 @@
+upstream:   https://github.com/tyfkda/xcc
+commit:     9ed0af92da6142aed7acbb02ba53801645be7b69
+authored:   2026-06-25
+vendored:   2026-06-27
+license:    LICENSE

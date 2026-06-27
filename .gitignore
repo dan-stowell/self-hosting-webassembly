@@ -1,0 +1,13 @@
+# Built "compiler-as-wasm" artifacts (reproducible via compilers/*/build.sh)
+compilers/*/dist/
+
+# xcc in-tree build outputs (compilers/xcc/build.sh; removed by `make clean`)
+compilers/xcc/src/obj/
+compilers/xcc/src/lib/*.a
+compilers/xcc/src/*.wasm
+compilers/xcc/src/wcc
+compilers/xcc/src/xcc
+compilers/xcc/src/cc1
+compilers/xcc/src/cpp
+compilers/xcc/src/as
+compilers/xcc/src/ld

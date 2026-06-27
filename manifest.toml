@@ -1,0 +1,55 @@
+# Suite of WebAssembly-emitting compilers, vendored here to be modified so the
+# compiler ITSELF compiles to / runs as wasm. See candidates.md for the full
+# ranking and rationale; see README.md for the workflow.
+#
+# status: planned -> vendored -> builds-to-wasm -> self-hosts
+#   planned        not yet imported
+#   vendored       pristine snapshot in compilers/<name>/src
+#   builds-to-wasm produces a working compiler-as-wasm artifact
+#   self-hosts     the compiler-as-wasm compiles its own source
+
+[[compiler]]
+name       = "xcc"
+upstream   = "https://github.com/tyfkda/xcc"
+impl_lang  = "C"
+backend    = "direct"          # own wasm emitter + linker, no LLVM
+tier       = 0
+effort     = 2
+status     = "builds-to-wasm"
+artifact   = "dist/cc.wasm"
+host_deps  = ["gcc", "make", "llvm-ar"]
+
+# --- next up (verified easy wins from candidates.md, not yet vendored) ---
+
+[[compiler]]
+name       = "waforth"
+upstream   = "https://github.com/remko/waforth"
+impl_lang  = "WebAssembly (wat)"
+backend    = "direct"
+tier       = 0
+effort     = 2
+status     = "planned"
+artifact   = "dist/waforth.wasm"
+host_deps  = ["wat2wasm"]      # + a host for its 6 shell.* imports
+
+[[compiler]]
+name       = "virgil"
+upstream   = "https://github.com/titzer/virgil"
+impl_lang  = "Virgil"
+backend    = "direct"          # self-hosting, no LLVM
+tier       = 0
+effort     = 2
+status     = "planned"         # proven end-to-end in scratch; vendoring pending
+artifact   = "dist/Aeneas.wasm"
+host_deps  = ["bash"]          # bootstraps from checked-in native binary
+
+[[compiler]]
+name       = "schism"
+upstream   = "https://github.com/schism-lang/schism"
+impl_lang  = "Scheme"
+backend    = "direct"
+tier       = 0
+effort     = 4                 # bitrotten (2020): pre-final wasm encodings, removed Node flags
+status     = "planned"
+artifact   = "dist/schism.wasm"
+host_deps  = ["node (period-correct ~v12) or guile", "+ codegen patches"]

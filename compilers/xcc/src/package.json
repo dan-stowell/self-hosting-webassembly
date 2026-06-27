@@ -1,0 +1,45 @@
+{
+  "name": "Wcc",
+  "version": "0.1.0",
+  "description": "C-compiler for wasm",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run default",
+    "default": "npm run build-assets && npx vite --port=3000",
+    "build-assets": "make assets",
+    "lint": "eslint src/wcc/www/**/*.ts",
+    "lint:fix": "eslint --fix src/wcc/www/**/*.ts",
+    "release": "npx vite build",
+    "clean": "rm -rf public release"
+  },
+  "author": "tyfkda",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tyfkda/xcc"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0"
+  },
+  "devDependencies": {
+    "@types/alpinejs": "~3.13.11",
+    "@types/node": "~22.14.1",
+    "@types/path-browserify": "~1.0.3",
+    "@typescript-eslint/eslint-plugin": "~8.30.1",
+    "@typescript-eslint/parser": "~8.30.1",
+    "commander": "~13.1.0",
+    "sass": "~1.86.3",
+    "ts-node": "~10.9.2",
+    "vite": "~6.3.1"
+  },
+  "dependencies": {
+    "@wasmer/wasi": "~0.12.0",
+    "@wasmer/wasmfs": "~0.12.0",
+    "alpinejs": "~3.14.9",
+    "buffer": "~6.0.3",
+    "core-js": "~3.41.0",
+    "fflate": "~0.8.2",
+    "path-browserify": "~1.0.1",
+    "split.js": "~1.6.5"
+  }
+}

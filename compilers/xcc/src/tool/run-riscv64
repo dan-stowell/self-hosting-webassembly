@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+# zbb for clz, etc.
+ISA=rv64gc_zbb
+
+spike --isa=${ISA} pk "$@"

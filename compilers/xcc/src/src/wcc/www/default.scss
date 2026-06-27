@@ -1,0 +1,244 @@
+$BG_COLOR: #ddd;
+$DURATION: 0.25s;
+$HEADER_HEIGHT: 32px;
+
+@mixin _full-size() {
+  width: 100%;
+  height: 100%;
+}
+
+html, body {
+  @include _full-size();
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  position: relative;
+  background-color: $BG_COLOR;
+  overflow: hidden;
+}
+
+a.disabled {
+  color: gray;
+  pointer-events: none;
+  text-decoration: none;
+}
+
+.full-size {
+  @include _full-size();
+}
+
+.clear-fix:after{
+  clear: both;
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  height: $HEADER_HEIGHT;
+  left: 0;
+  right: 0;
+  padding: 2px 8px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #444;
+}
+
+.split-root {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: $HEADER_HEIGHT;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.gutter {
+  background-color: #eee;
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+  cursor: row-resize;
+}
+
+#toggle-terminal-btn {
+  position:absolute;
+  top: -(/*height*/16px + /*padding-top*/4px + /*gutterSize*/10px);
+  height: 16px;
+  background-color: #eee;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #222;
+  z-index: 1000;
+  padding: 4px 10px 0 10px;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+}
+
+.run-btn {
+  background-color: #14f;
+  color: white;
+  border: 1px solid #008;
+  border-radius: 4px 0 0 4px;
+  padding: 4px 4px 4px 12px;
+  font-size: 90%;
+  cursor: pointer;
+
+  &:disabled {
+    color: gray;
+  }
+
+  &:enabled:hover {
+    // background-color: #44f;
+    color: #4ff;
+  }
+}
+.run-btn.busy, .run-btn.loading {
+  background-color: #888;
+  color: #ccc;
+  cursor: default;
+}
+
+.run-dropdown-btn {
+  background-color: #14f;
+  color: white;
+  border: 1px solid #008;
+  border-radius: 0 4px 4px 0;
+  padding: 4px;
+  font-size: 90%;
+  margin-right: 12px;
+  cursor: pointer;
+
+  &:disabled {
+    color: gray;
+  }
+
+  &:enabled:hover {
+    // background-color: #44f;
+    color: #4ff;
+  }
+}
+
+.run-dropdown {
+  position: absolute;
+  background: lightgray;
+  left: 0;
+  width: 100px;
+  padding: 4px;
+  border-radius: 0 0 8px 8px;
+  border: gray 1px solid;
+  text-align: center;
+  color: black;
+  cursor: pointer;
+
+  div:hover {
+    background-color: #eee;
+  }
+}
+
+.dropdown-curtain {
+  position: absolute;
+}
+
+.wnd {
+  position: absolute;
+  border: solid 4px #333;
+  border-radius: 4px;
+  transition-duration: $DURATION;
+  transition-property: border-color;
+
+  &:hover {
+    border-color: #aaa;
+  }
+}
+
+.draggable {
+  cursor: move;
+}
+
+.close-button {
+  background-color: #aaa;
+  color: #333;
+  font-size: 8px;
+  cursor: pointer;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  border-radius: 1px;
+  text-align: center;
+  transition-duration: $DURATION;
+  &:after {
+    content: "X";
+  }
+
+  &:hover {
+    background-color: red;
+    color: white;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 4px;
+  }
+}
+
+.code-editor {
+  .ace_cursor {
+    border: 1px rgba(50,250,50,0.8) solid!important;
+    box-sizing: border-box!important;
+    background-color: rgba(0,250,0,0.5);
+    opacity: 0.5;
+  }
+  .ace_hidden-cursors .ace_cursor {
+    opacity: 1;
+    background-color: transparent;
+  }
+}
+
+.sysmenu-container {
+  position: absolute;
+  backdrop-filter:blur(1.5px);
+
+  .sysmenu-body {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: white;
+    border: 1px solid grey;
+    border-radius: 8px;
+    padding: 8px 16px;
+
+    h4 {
+      margin: 8px 0 0 0;
+    }
+  }
+}
+
+.nav-open {
+  display: inline-block;
+  width: 30px;
+  height: 22px;
+  vertical-align: middle;
+  cursor: pointer;
+  margin-right: 4px;
+}
+
+.nav-open span, .nav-open span:before, .nav-open span:after {
+  position: absolute;
+  height: 2px;
+  width: 25px;
+  border-radius: 3px;
+  background: #555;
+  display: block;
+  content: '';
+}
+.nav-open span:before {
+  bottom: -8px;
+}
+.nav-open span:after {
+  bottom: -16px;
+}

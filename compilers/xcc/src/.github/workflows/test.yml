@@ -1,0 +1,42 @@
+name: AllTests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - actions/**
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24.x
+
+    - name: make xcc
+      run: make -j8 all
+    - name: test xcc
+      run: make test
+    - name: test xcc gen2
+      run: make test-gen2
+
+    - name: test ssa
+      run: make test-ssa
+
+    - name: setup
+      run: |
+        npm ci
+        sudo apt update && sudo apt install llvm-dev
+    - name: make wcc
+      run: make -j8 wcc
+    - name: test wcc
+      run:  make test-wcc
+    - name: test wcc gen2
+      run:  make test-wcc-gen2

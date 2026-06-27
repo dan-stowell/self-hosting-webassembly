@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tyfkda">
+    <meta name="twitter:title" content="C-compiler on a browser">
+    <meta name="twitter:description" content="You can edit, compile and run C code on your browser!">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/tyfkda/xcc/main/wcc.png">
+    <meta name="twitter:player:height" content="512">
+    <meta name="twitter:player:width" content="400">
+    <title>C-compiler on WASM</title>
+    <link rel="stylesheet" href="default.scss">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/editor/editor.main.min.css" integrity="sha512-NSBo7z5U9w3Y/maVpyxwEzpMKJteo+y3uDNT1M4RuXo8SH2OQfECzuEqbkoDA5Lo2DcWUvxkLrOAtOp/tYLkGg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+
+  <body>
+    <div x-data="initialData">
+      <div class="full-size" style="position:absolute">
+        <div class="header">
+          <label class="nav-open" @click="onClickNavOpen"><span></span></label>
+          <div style="position:relative; display:inline">
+            <span class="run-btn" :class="{busy:busy, loading:!loaded}" @click="runCode()" x-text="`${runMode} (⌘+⏎)`"></span
+            ><span class="run-dropdown-btn" :disabled="!loaded" @click="toggleRunModeDropdown()" x-text="showRunModeDropdown?'▲':'▼'"></span>
+
+            <div class="run-dropdown" x-show="showRunModeDropdown" style="z-index:1000; display:none">
+              <div @click="setRunMode('Run')">Run</div>
+              <div @click="setRunMode('Compile')">Compile</div>
+            </div>
+          </div>
+          <span x-show="runMode==='Run'">Args: <input type="text" x-model="args"></span>
+        </div>
+        <div class="split-root">
+          <div id="editor"></div>
+          <div id="terminal-container" style="position:relative; height:0">
+            <div id="toggle-terminal-btn" @click="toggleTerminal()">Output</div>
+            <div id="terminal" class="full-size"></div>
+          </div>
+        </div>
+      </div>
+      <div x-show="showRunModeDropdown" @click="closeRunModeDropdown()" class="dropdown-curtain full-size" style="display:none; z-index:999;">
+      </div>
+      <div x-show="showSysmenu" @click="closeSysmenu()" class="sysmenu-container full-size" style="display:none; z-index:1000;">
+        <div class="sysmenu-body" onclick="event.stopPropagation()">
+          <h4>Load example</h4>
+          <select id="example-select" x-model="example">
+            <option></option>
+            <option value="hello">Hello</option>
+            <option value="sieve">Sieve</option>
+            <option value="qsort">Quick sort</option>
+            <option value="aobench">AOBench</option>
+          </select>
+
+          <h4>File</h4>
+          <template x-if="fileHandle">
+            <div x-text="fileHandle.name"></div>
+          </template>
+          <div><a href="#" @click="newFile($event); return false">New</a></div>
+          <template x-if="canAccessLocalFile">
+            <div>
+              <div><a href="#" @click="loadFile($event); return false">Load</a></div>
+              <div><a href="#" @click="saveFile($event); return false" :disabled="!fileHandle">Save</a></div>
+              <div><a href="#" @click="saveFileAs($event); return false">Save As...</a></div>
+            </div>
+          </template><template x-if="!canAccessLocalFile">
+            <div><a href="#" @click="saveFile($event); return false">Save</a></div>
+          </template>
+          <a href="#" :href="shareUrl" x-bind:class="shareUrl ? '' : 'disabled'" @click="shareLink($event); return false">Share</a>
+
+          <h4>About</h4>
+          <a href="https://github.com/tyfkda/xcc" target="_blank" rel=”noopener noreferrer” @click="closeSysmenu()">Github</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js" integrity="sha512-ZG31AN9z/CQD1YDDAK4RUAvogwbJHv6bHrumrnMLzdCrVu4HeAqrUX7Jsal/cbUwXGfaMUNmQU04tQ8XXl5Znw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="main.ts" type="module"></script>
+  </body>
+</html>
