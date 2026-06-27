@@ -36,7 +36,7 @@ everywhere else — **does the backend drag in native code (LLVM)?**
 | Target | Backend | LLVM? | Self-hosts to wasm? | Effort |
 |---|---|---|---|---|
 | **AssemblyScript** | Binaryen shipped **as wasm** (npm pkg), called via C-API → wasm imports | none | ✅ **already does** (built + verified here: byte-identical fixed point) | 1–2 |
-| **Zig** | own self-hosted wasm backend (`src/codegen/wasm/`, `src/link/Wasm.zig`); LLVM is opt-in (`have_llvm=false`) | none (for this path) | ✅ **already does** — `stage1/zig1.wasm` *is* the compiler self-compiled to wasm, used in its own bootstrap. (Old C++/LLVM "stage1" was removed.) | 1–2 |
+| **Zig** | own self-hosted wasm backend (`src/codegen/wasm/`, `src/link/Wasm.zig`); LLVM is opt-in (`have_llvm=false`) | none (for this path) | ✅ **proven here** — `stage1/zig1.wasm` *is* the compiler self-compiled to wasm; we ran its no-LLVM bootstrap (`zig1.wasm`→`zig1`→`zig2`) and drove `zig2` to emit native + `wasm32-wasi` + freestanding wasm. See [compilers/zig](compilers/zig/notes.md). | 1–2 (run) / 3 (bootstrap cost) |
 | **Porffor** | its **own pure-JS** wasm encoder (`compiler/assemble.js` etc.); "Binaryen/etc is not used" | none | ⚠️ partial — self-applies to its *builtins*, but compiling its own 24K-line compiler needs JS far beyond its supported subset (~61% Test262). Clean deps, full self-host aspirational. | 5 (true self-host) / 1–2 (run its JS in a wasm JS-engine) |
 | **TinyGo** | **LLVM** via CGo (`tinygo.org/x/go-llvm`, 57 sites); wasm = Go→LLVM IR→LLVM→wasm-ld | **intrinsic** | ❌ — CGo can't target wasip1; would need LLVM-in-wasm | 5 |
 

@@ -1,0 +1,11 @@
+upstream:   https://github.com/ziglang/zig
+commit:     738d2be9d6b6ef3ff3559130c05159ef53336224
+authored:   2025-11-26
+vendored:   2026-06-27
+license:    LICENSE (MIT)
+version:    0.14.0-dev.bootstrap (baked by bootstrap.c into config.zig)
+
+note: only the self-hosted-to-wasm artifact (zig1.wasm, 3.2 MB) and the
+bootstrap recipe (bootstrap.c) are committed here. The full source tree
+(lib/ ~233 MB, src/ ~25 MB) is NOT vendored — build.sh git-clones it at the
+pinned commit to run the bootstrap. See notes.md for why.

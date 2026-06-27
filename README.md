@@ -23,10 +23,12 @@ Three related but distinct threads:
 2. **Use those compilers to compile more tools/compilers to wasm** — e.g.
    `cc.wasm` (xcc) compiling other C projects to wasm (demoed end-to-end).
 3. **Make the big "real" languages self-host to wasm** — AssemblyScript ✅ (done,
-   vendored) and Zig ✅ (done upstream: `zig1.wasm`) are the holy grail and need
-   no LLVM. **TinyGo ❌** is LLVM-intrinsic (can't, short of LLVM-in-wasm).
-   **Porffor** has ideal no-native deps but its compiler outgrows its own JS
-   subset (full self-host aspirational).
+   vendored) and Zig ✅ (vendored + **reproduced here**: `zig1.wasm`, the Zig
+   compiler self-compiled to wasm, bootstraps a full no-LLVM `zig2` that itself
+   emits native + wasm — see [compilers/zig](compilers/zig/notes.md)) are the
+   holy grail and need no LLVM. **TinyGo ❌** is LLVM-intrinsic (can't, short of
+   LLVM-in-wasm). **Porffor** has ideal no-native deps but its compiler outgrows
+   its own JS subset (full self-host aspirational).
 
 ## Layout
 
@@ -107,6 +109,7 @@ runtime from source, and runs `scripts/verify.sh` — so a successful image buil
 | Compiler | Lang | Tier/Effort | Status |
 |---|---|---|---|
 | [assemblyscript](compilers/assemblyscript/notes.md) | AS (TS subset) | 0 / 2 | ✅ **self-hosting** — byte-identical fixed point; no LLVM (Binaryen-as-wasm) |
+| [zig](compilers/zig/notes.md) | Zig | 0 / 3 | ✅ **self-hosting**, **no LLVM** — `zig1.wasm` (self-compiled to wasm) bootstraps `zig2`, which emits native + wasm (proven) |
 | [xcc](compilers/xcc/notes.md) | C | 0 / 2 | ✅ builds-to-wasm; **end-to-end**: `cc.wasm` compiles C → wasm that runs |
 | [wa](compilers/wa/notes.md) (凹语言) | Go | 0 / 2 | ✅ builds-to-wasm (`dist/wa.wasm`); output **byte-identical** to native |
 | [waforth](compilers/waforth/notes.md) | wat | 0 / 2 | ✅ **end-to-end**: REPL compiles & runs Forth words as wasm at runtime |

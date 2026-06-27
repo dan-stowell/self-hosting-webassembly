@@ -52,6 +52,17 @@ status     = "self-hosting"    # byte-identical fixed point verified; the flagsh
 artifact   = "dist/asc.wasm + dist/asc.wasm.js"
 host_deps  = ["node>=20.19", "npm"]
 
+[[compiler]]
+name       = "zig"
+upstream   = "https://github.com/ziglang/zig"
+impl_lang  = "Zig"
+backend    = "direct — Zig's own self-hosted backend, no LLVM"
+tier       = 0
+effort     = 3                 # heavy bootstrap (~10 min, ~6 GB RAM), no code changes
+status     = "self-hosting"    # zig1.wasm (self-compiled to wasm) bootstraps zig2; zig2 emits wasm
+artifact   = "zig1.wasm (committed) -> dist/zig2"
+host_deps  = ["git", "gcc"]    # clones pinned tree for lib/src; no LLVM/node for the build
+
 # --- next up (verified easy wins from candidates.md, not yet vendored) ---
 
 [[compiler]]
