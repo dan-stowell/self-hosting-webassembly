@@ -34,8 +34,15 @@ The wasm toolbox, itself as wasm:
   (`runtimes/w2c2/to-wasm.sh`), runs under the tcc-built toywasm and translates
   a `.wasm` to C inside the sandbox (`runtimes/w2c2/demo-in-wasm.sh`). The tool
   that de-virtualizes wasm, now running *as* wasm.
-- **wabt**: `wat2wasm`, `wasm2wat`, `wasm-objdump`, `wasm-validate`, `wasm-strip` (C++).
-- **binaryen**: `wasm-opt`, `wasm-as`, `wasm-dis` (C++).
+- **wabt** ✅ **done** — `wat2wasm`, `wasm2wat`, `wasm-objdump`, `wasm-validate`,
+  `wasm-strip`, `wat-desugar` all compiled to wasm (`runtimes/wabt/to-wasm.sh`)
+  and run under the tcc-built toywasm, round-tripping a module
+  (`runtimes/wabt/demo-in-wasm.sh`). C++, but exception-free so wasi-sdk's
+  no-exceptions libc++ is fine.
+- **binaryen**: `wasm-opt`, `wasm-as`, `wasm-dis` (C++) — **blocked**: binaryen
+  uses C++ exceptions, and wasi-sdk 33's libc++ has no exception runtime
+  (`__cxa_throw` undefined; `-fwasm-exceptions` needs unsupported sysroot bits).
+  Would need an exception-enabled libc++ or an `-fno-exceptions` port.
 - (stretch) `wasm-tools` (Rust).
 
 ## Phase 3 — wasm runtimes → compiled to wasm (wasm-in-wasm)

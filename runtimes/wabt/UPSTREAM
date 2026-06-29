@@ -1,0 +1,10 @@
+upstream:   https://github.com/WebAssembly/wabt
+commit:     23b62e9665fa96fa6d94e9e08adb3bc5ce1f3a34
+authored:   2026-06-27
+vendored:   2026-06-29
+license:    Apache-2.0
+
+note: to-wasm.sh git-clones at this pin (gitignored), fetches the one missing
+single-header submodule (picosha2), and builds the wabt tool suite -> wasm with
+wasi-sdk. wabt is exception-free (WITH_EXCEPTIONS=OFF), so it needs no C++
+exception runtime. Committed: UPSTREAM, to-wasm.sh, demo-in-wasm.sh, notes.md.
