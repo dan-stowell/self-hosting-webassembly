@@ -14,6 +14,7 @@ built:
 | phase | target | as wasm | validated |
 |---|---|---|---|
 | 1 | xcc `cc.wasm` (tiny C→wasm compiler) | self-hosted | hosted in toywasm to compile+run C ([toywasm/demo.sh](toywasm/demo.sh)) |
+| 1 | **wcpl** (self-hosted C→wasm compiler) | self-hosted (native seed → wcpl.wasm) | compiles C→wasm AS wasm in toywasm ([wcpl/demo-in-wasm.sh](wcpl/demo-in-wasm.sh)) |
 | 2 | **w2c2** (wasm→C translator) | wasi-sdk | runs in toywasm ([w2c2/demo-in-wasm.sh](w2c2/demo-in-wasm.sh)) |
 | 2 | **wabt** ×6 (wat2wasm, wasm2wat, objdump, validate, strip, desugar) | wasi-sdk | run in toywasm; also de-virtualized to native (Path C) ([wabt/demo-in-wasm.sh](wabt/demo-in-wasm.sh)) |
 | 2 | **binaryen** ×3 (wasm-opt, wasm-as, wasm-dis) — **C++ *with* exceptions** | wasi-sdk `eh/` multilib | run in EH-enabled tcc-built toywasm ([binaryen/demo-in-wasm.sh](binaryen/demo-in-wasm.sh)) |
