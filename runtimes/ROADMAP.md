@@ -24,10 +24,10 @@ built:
 | 3 | **wazero** (pure-Go wasm runtime) | Go `wasip1/wasm` | runs a guest module AS wasm in toywasm ([wazero/demo-in-wasm.sh](wazero/demo-in-wasm.sh)) |
 | 3 | **fizzy** (C++ wasm interpreter) | wasi-sdk `eh/` multilib | runs a guest AS wasm in toywasm ([fizzy/demo-in-wasm.sh](fizzy/demo-in-wasm.sh)) |
 | 3 | **wasmi** (Rust wasm interpreter) | Rust `wasip1/wasm` | runs a guest AS wasm in toywasm ([wasmi/demo-in-wasm.sh](wasmi/demo-in-wasm.sh)) |
+| 3 | **WAMR** (wasm-micro-runtime classic interp) | wasi-sdk + custom WASI platform | runs a guest AS wasm in toywasm ([wamr/demo-in-wasm.sh](wamr/demo-in-wasm.sh)) |
 
-Blocked / deferred: **wac/wax** (dlsym import model absent in wasm),
-**WAMR** (wasi self-host port). (**binaryen** — previously blocked on C++
-exceptions — is now ✅ **done**, see below.)
+Blocked / deferred: **wac/wax** (dlsym import model absent in wasm).
+(**binaryen** and **WAMR** — both previously deferred — are now ✅ **done**.)
 
 ## The enabler: a C/C++ → wasm compiler
 
@@ -83,8 +83,14 @@ Run a wasm runtime *inside* a wasm runtime:
   + a `clock()` shim) and run inside the tcc-built toywasm
   (`runtimes/wasm3/demo-in-wasm.sh`). Caveat: wasm3's builtin guest-WASI lacks
   `fd_filestat_get`, so nested guests must stay minimal.
-- **WAMR** classic interp (C), **wac/wax** (C; note its `dlsym` import model
-  doesn't exist in wasm — would need rework).
+- **WAMR** (C) ✅ **done** — the wasm-micro-runtime classic interpreter compiled
+  to wasm (`runtimes/wamr/to-wasm.sh`) and run inside the tcc-built toywasm
+  (`runtimes/wamr/demo-in-wasm.sh`). Took a custom minimal WASI platform
+  (malloc-backed mmap, single-thread stubs), the portable C `invokeNative` path
+  (`WAMR_BUILD_INVOKE_NATIVE_GENERAL=1`), and software bounds checks. See
+  [wamr/notes.md](wamr/notes.md).
+- **wac/wax** (C; note its `dlsym` import model doesn't exist in wasm — would
+  need rework).
 
 The end state: a tcc-built toywasm that can run the compilers, the wasm tools,
 *and* other wasm runtimes — all as wasm — i.e. the floor can rebuild and re-run

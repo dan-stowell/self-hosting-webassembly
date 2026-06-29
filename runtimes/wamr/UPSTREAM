@@ -1,0 +1,3 @@
+repo: https://github.com/bytecodealliance/wasm-micro-runtime
+commit: e571797fbdf498d9ac4edb495205ea0f01370091
+license: Apache-2.0 WITH LLVM-exception
