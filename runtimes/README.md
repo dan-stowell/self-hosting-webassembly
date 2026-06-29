@@ -36,6 +36,34 @@ Together: **Path C** de-virtualizes a *known* wasm into native code (no engine);
 **Path B** keeps a tiny tcc-built engine that hosts *arbitrary* current WASI
 programs, toolchain included; **Path A** is the minimal interpreter proof.
 
+## The floor, populated: the whole wasm world *as* wasm
+
+Building on Path B, the roadmap compiled the wasm toolchain **and a fleet of
+wasm runtimes** to wasm, each run inside the one tcc-built toywasm.
+[`showcase.sh`](showcase.sh) runs a single guest through every runtime in the
+floor at once:
+
+```
+runtime     lang   result
+-------------------------------------------
+  wasm3       C      OK   Result: 3628800
+  wasm-interp C      OK   fac(i32:10) => i32:3628800
+  WAMR        C      OK   fac => i32:3628800
+  fizzy       C++    OK   fac => i32:3628800
+  wazero      Go     OK   hello from wasm3, running inside tcc-built toywasm
+  wasmi       Rust   OK   fac => i32:3628800
+  wasmtime    Rust   OK   fac => i32:3628800
+```
+
+Four language ecosystems (C, C++, Go, Rust), all as wasm, on a ~688 KB
+tcc-built host — and `wasmtime` runs its full Cranelift→Pulley pipeline inside
+the sandbox. Each `runtimes/<name>/` entry adds a `to-wasm.sh` (compile it **to**
+wasm) and `demo-in-wasm.sh` (run it **as** wasm in the floor) alongside the
+original `build.sh`. **Tools** as wasm too: [wabt](wabt/) (wat2wasm, wasm2wat,
+wasm-interp, wasm2c, …), [binaryen](binaryen/) (wasm-opt/as/dis),
+[wasm-tools](wasm-tools/), [w2c2](w2c2/). See [ROADMAP.md](ROADMAP.md) for the
+full status table.
+
 ## Layout (as entries get built)
 
 ```
