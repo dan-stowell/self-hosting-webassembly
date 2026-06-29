@@ -3,5 +3,6 @@
 # Build + demo outputs
 */build/
 */devirt/
+*/.shim/
 *.o
 *.wasm

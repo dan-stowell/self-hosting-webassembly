@@ -16,11 +16,13 @@ built:
 | 1 | xcc `cc.wasm` (tiny C→wasm compiler) | self-hosted | hosted in toywasm to compile+run C ([toywasm/demo.sh](toywasm/demo.sh)) |
 | 2 | **w2c2** (wasm→C translator) | wasi-sdk | runs in toywasm ([w2c2/demo-in-wasm.sh](w2c2/demo-in-wasm.sh)) |
 | 2 | **wabt** ×6 (wat2wasm, wasm2wat, objdump, validate, strip, desugar) | wasi-sdk | run in toywasm; also de-virtualized to native (Path C) ([wabt/demo-in-wasm.sh](wabt/demo-in-wasm.sh)) |
+| 2 | **binaryen** ×3 (wasm-opt, wasm-as, wasm-dis) — **C++ *with* exceptions** | wasi-sdk `eh/` multilib | run in EH-enabled tcc-built toywasm ([binaryen/demo-in-wasm.sh](binaryen/demo-in-wasm.sh)) |
 | 3 | **toywasm** (our floor) | wasi-sdk | runs inside tcc-built toywasm, 3 deep ([toywasm/demo-wasm-in-wasm.sh](toywasm/demo-wasm-in-wasm.sh)) |
 | 3 | **wasm3** (famous tiny interp) | wasi-sdk | runs inside toywasm ([wasm3/demo-in-wasm.sh](wasm3/demo-in-wasm.sh)) |
 
-Blocked / deferred: **binaryen** (C++ exceptions vs no-exceptions libc++),
-**wac/wax** (dlsym import model absent in wasm), **WAMR** (wasi self-host port).
+Blocked / deferred: **wac/wax** (dlsym import model absent in wasm),
+**WAMR** (wasi self-host port). (**binaryen** — previously blocked on C++
+exceptions — is now ✅ **done**, see below.)
 
 ## The enabler: a C/C++ → wasm compiler
 
@@ -52,10 +54,16 @@ The wasm toolbox, itself as wasm:
   and run under the tcc-built toywasm, round-tripping a module
   (`runtimes/wabt/demo-in-wasm.sh`). C++, but exception-free so wasi-sdk's
   no-exceptions libc++ is fine.
-- **binaryen**: `wasm-opt`, `wasm-as`, `wasm-dis` (C++) — **blocked**: binaryen
-  uses C++ exceptions, and wasi-sdk 33's libc++ has no exception runtime
-  (`__cxa_throw` undefined; `-fwasm-exceptions` needs unsupported sysroot bits).
-  Would need an exception-enabled libc++ or an `-fno-exceptions` port.
+- **binaryen** ✅ **done** — `wasm-opt`, `wasm-as`, `wasm-dis` compiled to wasm
+  **with C++ exceptions** (`runtimes/binaryen/to-wasm.sh`) and run under the
+  tcc-built toywasm (`runtimes/binaryen/demo-in-wasm.sh`). The unlock: wasi-sdk
+  33 ships an **exception-enabled `eh/` multilib** (libc++/libc++abi/libunwind
+  built for wasm EH), and toywasm implements the standardized exception-handling
+  proposal — so with `-fwasm-exceptions -mllvm -wasm-use-legacy-eh=false` (the
+  new `try_table` encoding toywasm understands) and `-L.../eh -lunwind`, real
+  C++ throw/catch runs inside the floor. (A pass-through `wasm-opt` shim sidesteps
+  the circular dependency where the clang driver's stale post-link wasm-opt can't
+  parse the new EH opcodes.) See [binaryen/notes.md](binaryen/notes.md).
 - (stretch) `wasm-tools` (Rust).
 
 ## Phase 3 — wasm runtimes → compiled to wasm (wasm-in-wasm)

@@ -28,8 +28,9 @@ wasi-sdk 33's libc++ is built **without exceptions** (`__cxa_throw` is undefined
 `-fwasm-exceptions` needs runtime bits the sysroot lacks). That blocks most C++
 → wasm. But wabt is deliberately exception-free (`option(WITH_EXCEPTIONS OFF)`,
 no `try`/`catch`/`throw` in its own source), so it compiles cleanly against the
-no-exceptions libc++. (Contrast **binaryen**, which uses exceptions and would
-need an exception-enabled sysroot — see [ROADMAP.md](../ROADMAP.md).)
+no-exceptions libc++. (**binaryen** *does* use exceptions and needs the
+exception-enabled `eh/` sysroot multilib + EH-enabled toywasm — that route is
+now solved too; see [binaryen/notes.md](../binaryen/notes.md).)
 
 ## Both validation paths work
 

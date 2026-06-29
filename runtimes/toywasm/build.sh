@@ -24,6 +24,7 @@ rm -rf "$build"; mkdir -p "$build"
 cmake -S "$src" -B "$build" -G Ninja \
   -DCMAKE_C_COMPILER="$CC" \
   -DTOYWASM_ENABLE_WASM_THREADS=OFF \
+  -DTOYWASM_ENABLE_WASM_EXCEPTION_HANDLING=ON \
   -DTOYWASM_BUILD_UNITTEST=OFF -DBUILD_TESTING=OFF \
   -DCMAKE_BUILD_TYPE=Release >/dev/null
 

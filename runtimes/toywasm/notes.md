@@ -38,6 +38,10 @@ including the toolchain.
 - **`-DTOYWASM_ENABLE_WASM_THREADS=OFF`** to avoid `_Atomic` (tcc 0.9.27's weak
   spot); **`-DBUILD_TESTING=OFF -DTOYWASM_BUILD_UNITTEST=OFF`** to avoid the
   cmocka test dependency.
+- **`-DTOYWASM_ENABLE_WASM_EXCEPTION_HANDLING=ON`** so the floor can run wasm
+  modules that use the standardized exception-handling proposal (`try_table`) —
+  needed to host [binaryen](../binaryen/notes.md), which is C++-with-exceptions
+  compiled against wasi-sdk's `eh/` multilib.
 - Pass `--` before the guest module so toywasm stops parsing options and hands
   `-o /out.wasm /input.c` to the hosted compiler.
 

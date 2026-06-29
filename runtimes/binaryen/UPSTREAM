@@ -1,0 +1,3 @@
+repo: https://github.com/WebAssembly/binaryen
+commit: 4514ec856ae412192fd25b50142404089e05e39f
+license: Apache-2.0
