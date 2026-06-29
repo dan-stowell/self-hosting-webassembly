@@ -45,9 +45,11 @@ Run a wasm runtime *inside* a wasm runtime:
   (`runtimes/toywasm/to-wasm.sh`); `toywasm.wasm` runs **inside the tcc-built
   native toywasm**, nested 3 deep, executing a real program at the bottom
   (`runtimes/toywasm/demo-wasm-in-wasm.sh`). The headline wasm-in-wasm.
-- **wasm3** (C) — classic small interpreter; *attempted*: both its WASI backends
-  (`m3_api_wasi.c`, `m3_api_meta_wasi.c`) have bit-rotted against wasi-sdk 33's
-  wasi-libc (drifted signatures, clock types) — needs a WASI-backend patch.
+- **wasm3** (C) ✅ **done** — the famous tiny interpreter compiled to wasm
+  (`runtimes/wasm3/to-wasm.sh`, after patching its bit-rotted WASI clock mapping
+  + a `clock()` shim) and run inside the tcc-built toywasm
+  (`runtimes/wasm3/demo-in-wasm.sh`). Caveat: wasm3's builtin guest-WASI lacks
+  `fd_filestat_get`, so nested guests must stay minimal.
 - **WAMR** classic interp (C), **wac/wax** (C; note its `dlsym` import model
   doesn't exist in wasm — would need rework).
 

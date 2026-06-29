@@ -1,0 +1,10 @@
+upstream:   https://github.com/wasm3/wasm3
+commit:     d77cd814aa0bc68cb1df917580a6304d34cfb30b
+authored:   2026-06-26
+vendored:   2026-06-29
+license:    LICENSE (MIT)
+
+note: to-wasm.sh git-clones at this pin (gitignored), patches the WASI clock
+mapping (bit-rotted vs wasi-sdk 33), and builds wasm3 -> wasm with wasi-sdk.
+Committed: UPSTREAM, to-wasm.sh, demo-in-wasm.sh, notes.md, wasi_shim.c,
+hello_p1.wat.
