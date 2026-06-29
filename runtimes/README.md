@@ -61,8 +61,10 @@ the sandbox. Each `runtimes/<name>/` entry adds a `to-wasm.sh` (compile it **to*
 wasm) and `demo-in-wasm.sh` (run it **as** wasm in the floor) alongside the
 original `build.sh`. **Tools** as wasm too: [wabt](wabt/) (wat2wasm, wasm2wat,
 wasm-interp, wasm2c, …), [binaryen](binaryen/) (wasm-opt/as/dis),
-[wasm-tools](wasm-tools/), [w2c2](w2c2/). See [ROADMAP.md](ROADMAP.md) for the
-full status table.
+[wasm-tools](wasm-tools/), [w2c2](w2c2/). And the **compilers** come full
+circle: [wcpl](wcpl/) is a self-hosted C→wasm compiler that compiles *itself*
+to `wcpl.wasm`, then runs as wasm in the floor compiling C to wasm. See
+[ROADMAP.md](ROADMAP.md) for the full status table.
 
 ## Layout (as entries get built)
 
