@@ -1,0 +1,30 @@
+# Built "compiler-as-wasm" artifacts (reproducible via compilers/*/build.sh)
+compilers/*/dist/
+
+# Zig: build.sh clones the full upstream tree here (too large to vendor)
+compilers/zig/build/
+
+# xcc in-tree build outputs (compilers/xcc/build.sh; removed by `make clean`)
+compilers/xcc/src/obj/
+compilers/xcc/src/lib/*.a
+compilers/xcc/src/*.wasm
+compilers/xcc/src/wcc
+compilers/xcc/src/xcc
+compilers/xcc/src/cc1
+compilers/xcc/src/cpp
+compilers/xcc/src/as
+compilers/xcc/src/ld
+tools/
+
+# waforth standalone host build outputs (compilers/waforth/build-host.sh)
+compilers/waforth/src/src/standalone/wasmtime-*/
+compilers/waforth/src/src/standalone/*.o
+compilers/waforth/src/src/standalone/*.tar.xz
+compilers/waforth/src/src/standalone/waforth
+compilers/waforth/src/src/standalone/waforth_core.wasm
+compilers/waforth/src/src/standalone/waforth_core.h
+
+# AssemblyScript build outputs (node toolchain in tools/ also ignored)
+compilers/assemblyscript/src/node_modules/
+compilers/assemblyscript/src/build/
+compilers/assemblyscript/src/dist/
