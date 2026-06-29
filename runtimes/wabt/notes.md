@@ -31,6 +31,16 @@ no `try`/`catch`/`throw` in its own source), so it compiles cleanly against the
 no-exceptions libc++. (Contrast **binaryen**, which uses exceptions and would
 need an exception-enabled sysroot — see [ROADMAP.md](../ROADMAP.md).)
 
+## Both validation paths work
+
+These tools pass *both* checks from the roadmap: they **run as wasm** under the
+tcc-built toywasm (Path B, above), and they **de-virtualize to native** with no
+engine via w2c2 + tcc (Path C) — e.g.
+`runtimes/w2c2/devirt.sh runtimes/wabt/src/build.wasm/wat2wasm /tmp/wat2wasm`
+yields a native `wat2wasm` (built by tcc from w2c2's generated C) that assembles
+valid wasm. A C++ wasm tool, reachable as both a wasm module and engine-free
+native code, all through tiny tools.
+
 ## What it took
 
 - `WITH_EXCEPTIONS=OFF`, `BUILD_TESTS=OFF`, `BUILD_LIBWASM=OFF`, and the

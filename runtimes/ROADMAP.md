@@ -9,6 +9,19 @@ built:
 - **run it** under the tcc-built [toywasm](toywasm/notes.md) (Path B), and/or
 - **de-virtualize it** to native via [w2c2](w2c2/notes.md) + tcc (Path C).
 
+## Done so far
+
+| phase | target | as wasm | validated |
+|---|---|---|---|
+| 1 | xcc `cc.wasm` (tiny C→wasm compiler) | self-hosted | hosted in toywasm to compile+run C ([toywasm/demo.sh](toywasm/demo.sh)) |
+| 2 | **w2c2** (wasm→C translator) | wasi-sdk | runs in toywasm ([w2c2/demo-in-wasm.sh](w2c2/demo-in-wasm.sh)) |
+| 2 | **wabt** ×6 (wat2wasm, wasm2wat, objdump, validate, strip, desugar) | wasi-sdk | run in toywasm; also de-virtualized to native (Path C) ([wabt/demo-in-wasm.sh](wabt/demo-in-wasm.sh)) |
+| 3 | **toywasm** (our floor) | wasi-sdk | runs inside tcc-built toywasm, 3 deep ([toywasm/demo-wasm-in-wasm.sh](toywasm/demo-wasm-in-wasm.sh)) |
+| 3 | **wasm3** (famous tiny interp) | wasi-sdk | runs inside toywasm ([wasm3/demo-in-wasm.sh](wasm3/demo-in-wasm.sh)) |
+
+Blocked / deferred: **binaryen** (C++ exceptions vs no-exceptions libc++),
+**wac/wax** (dlsym import model absent in wasm), **WAMR** (wasi self-host port).
+
 ## The enabler: a C/C++ → wasm compiler
 
 The targets are tiny; the bridge is a real compiler-to-wasm. We use **wasi-sdk**
@@ -17,15 +30,15 @@ runs under toywasm. Note the loop-closer: clang *itself* compiles to wasm (w2c2
 ships an `llvm.wasm` example), so even the bridge can eventually live in the
 floor. `emcc` is also present for the C++ targets that need it.
 
-## Phase 1 — tiny compilers that emit wasm → compiled to wasm
+## Phase 1 — tiny compilers that emit wasm → compiled to wasm ✅
 
 The exemplars already exist as wasm in the archived
 [self-hosting-compilers](../experiments/self-hosting-compilers/) thread, because
 they self-host: **xcc/`cc.wasm`**, **WAForth**, **AssemblyScript**, **Schism**,
-**wa**, **Zig** (`zig1.wasm`). This phase consolidates them under the floor lens
-(run each under toywasm; de-virtualize each) and adds any tiny wasm-emitting
-compiler buildable straight through wasi-sdk (e.g. a second, clang-built
-`wcc.wasm`).
+**wa**, **Zig** (`zig1.wasm`). Demonstrated under the floor lens:
+`toywasm/demo.sh` hosts xcc's `cc.wasm` (a tiny C→wasm compiler, *as wasm*)
+inside the tcc-built toywasm, compiles `hello.c` → wasm, and runs it — a tiny
+compiler emitting wasm, running as wasm, in a tiny-compiler-built runtime.
 
 ## Phase 2 — tools that operate on / emit wasm → compiled to wasm
 
