@@ -9,6 +9,9 @@ runtime from a minimal seed → rebuilds it inside WebAssembly" picture.
   *bootstrappability* (build with a tiny C compiler, run with minimal deps,
   host the compiler that builds it), plus the two bootstrap strategies
   (translate-to-C vs. tiny-C-interpreter) and the next experiments.
+- **[ROADMAP.md](ROADMAP.md)** — compile the wasm world *into* wasm: tiny
+  compilers → wasm tools → wasm runtimes, each run under the tcc-built floor.
+  First phase-2 win landed: **w2c2 runs as wasm inside toywasm**.
 
 ## Built entries
 

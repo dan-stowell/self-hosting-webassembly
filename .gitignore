@@ -4,3 +4,6 @@
 .DS_Store
 *.swp
 scratch/
+
+# wasi-sdk and other large downloaded toolchains
+tools/

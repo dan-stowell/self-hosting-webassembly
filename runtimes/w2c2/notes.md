@@ -50,6 +50,21 @@ compilers thread; `w2c2` generalizes the trick to *any* wasm. Any compiler that
 targets wasm can now be folded into a tiny-seed (tcc/Mes/M2-Planet) bootstrap
 **without dragging its native toolchain along** — you go through wasm and C.
 
+## Also: w2c2 compiled TO wasm (roadmap phase 2)
+
+w2c2 doesn't only *produce* the floor — it can *live* in it. `to-wasm.sh`
+compiles w2c2 to wasm with wasi-sdk clang (one tiny patch: wasi-libc has no
+`glob`, so the unused datasegment-cleanup `#error` path is neutralized), giving a
+363 KB `w2c2.wasm`. `demo-in-wasm.sh` then runs that **under the tcc-built
+toywasm** and has it translate `fac.wasm` → C *inside the sandbox*:
+
+```
+toywasm (built by tcc)  ◁─runs─  w2c2.wasm (built by wasi-sdk)  ──emits──▶  fac.c
+```
+
+A wasm tool, operating on wasm, running as wasm, in a runtime a tiny compiler
+built. This is the first entry of [ROADMAP.md](../ROADMAP.md) phase 2.
+
 ## Caveats (honest scope)
 
 - **AOT, not a host.** One module → one native binary. This can't load arbitrary
