@@ -1,0 +1,3 @@
+repo: https://github.com/bytecodealliance/wasmtime
+commit: 08c456e8870b0b85566f9e9808b7a2f044eaa265
+license: Apache-2.0 WITH LLVM-exception

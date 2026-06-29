@@ -1,0 +1,21 @@
+[package]
+name = "wasmtime-run"
+version = "0.0.0"
+edition = "2021"
+
+[[bin]]
+name = "wasmtime-run"
+path = "src/main.rs"
+
+[dependencies]
+# wasmtime with the Pulley interpreter + Cranelift's pulley backend (pure Rust,
+# compiles wasm -> Pulley bytecode at runtime). No native JIT. The custom
+# virtual-memory backend lets us supply malloc-based mmap hooks (Pulley does
+# explicit bounds checks, so no signals/guard pages are needed).
+wasmtime = { path = "../src/crates/wasmtime", default-features = false, features = [
+  "runtime", "cranelift", "pulley", "wat", "std", "custom-virtual-memory",
+] }
+
+[profile.release]
+opt-level = "z"
+strip = true
