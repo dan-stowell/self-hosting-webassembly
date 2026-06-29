@@ -29,9 +29,11 @@ is wasm and produces wasm, all hosted by the tcc-built interpreter.
 
 wcpl's headline property is that it reproduces itself bit-for-bit. That holds
 *inside the floor* too: `wcpl.wasm` compiling its own source yields a `wcpl1.wasm`
-identical to `wcpl.wasm`. It's gated behind `WCPL_FIXPOINT=1` in the demo because
-compiling ~10 K lines of C under an interpreter (toywasm) takes many minutes —
-the result is the same fixpoint, just reached without leaving WebAssembly.
+**byte-identical** to `wcpl.wasm` (both 313594 bytes) — **verified**, the
+compiler reproduced itself as wasm without leaving WebAssembly. It's gated behind
+`WCPL_FIXPOINT=1` in the demo because compiling ~10 K lines of C under the
+toywasm interpreter is slow: ~15m30s here (vs. well under a second natively) —
+pure interpreter overhead, same fixpoint.
 
 ## Contrast with xcc/`cc.wasm`
 
