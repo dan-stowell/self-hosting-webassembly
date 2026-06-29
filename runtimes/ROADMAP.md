@@ -19,6 +19,7 @@ built:
 | 2 | **binaryen** ×3 (wasm-opt, wasm-as, wasm-dis) — **C++ *with* exceptions** | wasi-sdk `eh/` multilib | run in EH-enabled tcc-built toywasm ([binaryen/demo-in-wasm.sh](binaryen/demo-in-wasm.sh)) |
 | 3 | **toywasm** (our floor) | wasi-sdk | runs inside tcc-built toywasm, 3 deep ([toywasm/demo-wasm-in-wasm.sh](toywasm/demo-wasm-in-wasm.sh)) |
 | 3 | **wasm3** (famous tiny interp) | wasi-sdk | runs inside toywasm ([wasm3/demo-in-wasm.sh](wasm3/demo-in-wasm.sh)) |
+| 3 | **wabt `wasm-interp`** (a wasm interpreter) | wasi-sdk | runs a module's exports AS wasm in toywasm ([wabt/demo-interp-in-wasm.sh](wabt/demo-interp-in-wasm.sh)) |
 
 Blocked / deferred: **wac/wax** (dlsym import model absent in wasm),
 **WAMR** (wasi self-host port). (**binaryen** — previously blocked on C++

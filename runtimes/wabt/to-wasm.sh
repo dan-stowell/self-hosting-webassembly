@@ -9,7 +9,7 @@ repo=$(cd "$here/../.." && pwd)
 WASI_SDK="$repo/tools/wasi-sdk"
 ref=$(awk -F': *' '/^commit:/{print $2}' "$here/UPSTREAM")
 src="$here/src"
-TOOLS="wat2wasm wasm2wat wasm-objdump wasm-validate wasm-strip wat-desugar"
+TOOLS="wat2wasm wasm2wat wasm-objdump wasm-validate wasm-strip wat-desugar wasm-interp wasm2c wast2json"
 
 [ -x "$WASI_SDK/bin/clang" ] || "$repo/runtimes/scripts/setup-wasi-sdk.sh"
 for t in cmake ninja; do command -v $t >/dev/null || { echo "[wabt] need $t"; exit 1; }; done

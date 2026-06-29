@@ -17,10 +17,18 @@ Six wabt tools, compiled **to** wasm and run **inside** the tcc-built
 | `wasm-validate`| 1.1 MB | validate a module |
 | `wasm-strip`   | 877 KB | strip custom sections |
 | `wat-desugar`  | 1.3 MB | desugar `.wat` |
+| `wasm-interp`  | 1.2 MB | **a wasm interpreter** — run a module's exports |
+| `wasm2c`       | 1.4 MB | translate `.wasm` → C (a second wasm→C, like w2c2) |
+| `wast2json`    | 1.3 MB | run a `.wast` spec script → json + modules |
 
 `demo-in-wasm.sh` round-trips a module inside the sandbox: `wat2wasm.wasm`
 assembles it, `wasm2wat.wasm` disassembles it back, `wasm-objdump.wasm` inspects
 it, and toywasm runs the result.
+
+`demo-interp-in-wasm.sh` shows the two newer prizes: **`wasm-interp.wasm` is a
+wasm interpreter running AS wasm** (a runtime inside the runtime — phase 3,
+reached for free off the phase-2 wabt build) computing `fac(10)=3628800`, and
+`wasm2c.wasm` translating a module to C, both inside the tcc-built toywasm.
 
 ## Why this one worked where C++ usually doesn't
 
