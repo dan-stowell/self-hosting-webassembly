@@ -4,5 +4,7 @@
 */build/
 */devirt/
 */.shim/
+# Cargo build dirs for embedder helpers (e.g. wasmi/runner)
+**/target/
 *.o
 *.wasm

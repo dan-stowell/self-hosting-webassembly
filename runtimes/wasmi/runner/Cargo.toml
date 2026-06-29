@@ -1,0 +1,17 @@
+[package]
+name = "wasmi-run"
+version = "0.0.0"
+edition = "2021"
+
+[[bin]]
+name = "wasmi-run"
+path = "src/main.rs"
+
+[dependencies]
+# Use the wasmi CORE interpreter crate from the vendored clone. We deliberately
+# avoid wasmi_cli / wasmi_wasi (they pull cap-std/io-extras, which need nightly).
+wasmi = { path = "../src/crates/wasmi", default-features = false, features = ["std", "validate"] }
+
+[profile.release]
+opt-level = "z"
+strip = true

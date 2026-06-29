@@ -23,6 +23,7 @@ built:
 | 3 | **wabt `wasm-interp`** (a wasm interpreter) | wasi-sdk | runs a module's exports AS wasm in toywasm ([wabt/demo-interp-in-wasm.sh](wabt/demo-interp-in-wasm.sh)) |
 | 3 | **wazero** (pure-Go wasm runtime) | Go `wasip1/wasm` | runs a guest module AS wasm in toywasm ([wazero/demo-in-wasm.sh](wazero/demo-in-wasm.sh)) |
 | 3 | **fizzy** (C++ wasm interpreter) | wasi-sdk `eh/` multilib | runs a guest AS wasm in toywasm ([fizzy/demo-in-wasm.sh](fizzy/demo-in-wasm.sh)) |
+| 3 | **wasmi** (Rust wasm interpreter) | Rust `wasip1/wasm` | runs a guest AS wasm in toywasm ([wasmi/demo-in-wasm.sh](wasmi/demo-in-wasm.sh)) |
 
 Blocked / deferred: **wac/wax** (dlsym import model absent in wasm),
 **WAMR** (wasi self-host port). (**binaryen** — previously blocked on C++
