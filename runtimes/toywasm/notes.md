@@ -41,6 +41,20 @@ including the toolchain.
 - Pass `--` before the guest module so toywasm stops parsing options and hands
   `-o /out.wasm /input.c` to the hosted compiler.
 
+## Also: toywasm compiled TO wasm — wasm-in-wasm (roadmap phase 3)
+
+toywasm also compiles *to* wasm (upstream ships `build-wasm32-wasi.sh`).
+`to-wasm.sh` builds a 910 KB `toywasm.wasm` with wasi-sdk; `demo-wasm-in-wasm.sh`
+then runs it **inside the tcc-built native toywasm**, nested up to three deep,
+executing a real program at the bottom:
+
+```
+native toywasm (tcc)  ▷  toywasm.wasm  ▷  toywasm.wasm  ▷  hello.wasm  →  prints
+```
+
+A wasm runtime, compiled to wasm, running inside a wasm runtime a tiny compiler
+built. This is the headline of [ROADMAP.md](../ROADMAP.md) phase 3.
+
 ## Why this is the floor wac/wax couldn't be
 
 `wax` is smaller and language-simpler, but it speaks the legacy `wasi_unstable`
