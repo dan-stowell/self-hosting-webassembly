@@ -12,11 +12,26 @@ runtime from a minimal seed → rebuilds it inside WebAssembly" picture.
 
 ## Built entries
 
-- **[w2c2/](w2c2/notes.md)** ✅ — *"no engine at all"* (Path C). `tcc` builds the
-  wasm→C translator; we de-virtualize `cc.wasm` (xcc's C→wasm compiler) into a
-  native `cc`, compile `hello.c` → `hello.wasm` with it, then de-virtualize and
-  run *that* — a full wasm-compiler loop with **zero wasm engine**, tcc + C only.
+All three built with **tcc** (the tiny compiler), pinned + reproducible:
+
+- **[wac/](wac/notes.md)** ✅ — *Path A, smallest proof*. `tcc` builds `wax`
+  (~78 KB pure interpreter); it executes a hand-written WASI module. Needed 3
+  tcc-gap fixes (readline guard, `__builtin` bit-op shim, `-rdynamic`). Caveats:
+  legacy `wasi_unstable` ABI + 32-bit assumption → stepping-stone, not a floor.
+  Run `runtimes/wac/run.sh`.
+- **[toywasm/](toywasm/notes.md)** ✅ — *Path B, the persistent floor*. `tcc`
+  builds toywasm (665 KB, full modern WASI). It **hosts xcc's `cc.wasm`**:
+  compiles `hello.c` → wasm *inside the interpreter*, then runs it. A tiny
+  compiler builds an engine that hosts a real compiler. Run `runtimes/toywasm/demo.sh`.
+- **[w2c2/](w2c2/notes.md)** ✅ — *Path C, "no engine at all"*. `tcc` builds the
+  wasm→C translator; we de-virtualize `cc.wasm` into a native `cc`, compile
+  `hello.c` → `hello.wasm` with it, then de-virtualize and run *that* — a full
+  wasm-compiler loop with **zero wasm engine**, tcc + C only.
   Run `runtimes/w2c2/demo.sh`.
+
+Together: **Path C** de-virtualizes a *known* wasm into native code (no engine);
+**Path B** keeps a tiny tcc-built engine that hosts *arbitrary* current WASI
+programs, toolchain included; **Path A** is the minimal interpreter proof.
 
 ## Layout (as entries get built)
 
@@ -29,5 +44,5 @@ runtimes/<name>/
 
 Mirrors the archived
 [self-hosting-compilers](../experiments/self-hosting-compilers/) thread's
-structure. Next targets (from the survey): **toywasm** and **wac/wax** built
-with `tcc` (Path B — a persistent interpreter floor).
+structure. Paths A, B, C are now all built (above); the remaining survey thread
+is the from-nothing seed chain (M2-Planet → Mes → tcc), deferred.

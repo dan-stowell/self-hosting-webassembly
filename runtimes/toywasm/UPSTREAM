@@ -1,0 +1,9 @@
+upstream:   https://github.com/yamt/toywasm
+commit:     6fc2186b1d8d8fdc7330755d8b2adf86baf634ac
+authored:   2026-06-03
+vendored:   2026-06-29
+license:    LICENSE (MIT)
+
+note: build.sh git-clones the source at this pin into src/ (gitignored) and
+builds it with tcc (cmake/ninja orchestrate; tcc does all the C compilation).
+Only our build.sh / demo.sh / notes.md are committed.
