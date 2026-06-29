@@ -1,0 +1,7 @@
+# Cloned upstream sources (re-fetched by each runtime's build.sh at its pin)
+*/src/
+# Build + demo outputs
+*/build/
+*/devirt/
+*.o
+*.wasm

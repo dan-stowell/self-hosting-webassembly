@@ -10,6 +10,14 @@ runtime from a minimal seed → rebuilds it inside WebAssembly" picture.
   host the compiler that builds it), plus the two bootstrap strategies
   (translate-to-C vs. tiny-C-interpreter) and the next experiments.
 
+## Built entries
+
+- **[w2c2/](w2c2/notes.md)** ✅ — *"no engine at all"* (Path C). `tcc` builds the
+  wasm→C translator; we de-virtualize `cc.wasm` (xcc's C→wasm compiler) into a
+  native `cc`, compile `hello.c` → `hello.wasm` with it, then de-virtualize and
+  run *that* — a full wasm-compiler loop with **zero wasm engine**, tcc + C only.
+  Run `runtimes/w2c2/demo.sh`.
+
 ## Layout (as entries get built)
 
 ```
@@ -21,5 +29,5 @@ runtimes/<name>/
 
 Mirrors the archived
 [self-hosting-compilers](../experiments/self-hosting-compilers/) thread's
-structure. First targets (from the survey): **wac/wax** and **toywasm** built
-with `tcc`, and a **w2c2** wasm→C→tcc round-trip.
+structure. Next targets (from the survey): **toywasm** and **wac/wax** built
+with `tcc` (Path B — a persistent interpreter floor).

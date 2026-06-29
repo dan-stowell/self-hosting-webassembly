@@ -1,0 +1,9 @@
+upstream:   https://github.com/turbolent/w2c2
+commit:     2a31254683de4a3f6a750c123daa7ddf97631c69
+authored:   2025-09-30
+vendored:   2026-06-29
+license:    LICENSE (MIT)
+
+note: build.sh git-clones the source at this pin into src/ (gitignored) and
+builds it with tcc. Nothing from upstream is committed here — only our
+build.sh / devirt.sh / demo.sh / notes.md.
