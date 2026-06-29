@@ -17,6 +17,7 @@ built:
 | 2 | **w2c2** (wasm→C translator) | wasi-sdk | runs in toywasm ([w2c2/demo-in-wasm.sh](w2c2/demo-in-wasm.sh)) |
 | 2 | **wabt** ×6 (wat2wasm, wasm2wat, objdump, validate, strip, desugar) | wasi-sdk | run in toywasm; also de-virtualized to native (Path C) ([wabt/demo-in-wasm.sh](wabt/demo-in-wasm.sh)) |
 | 2 | **binaryen** ×3 (wasm-opt, wasm-as, wasm-dis) — **C++ *with* exceptions** | wasi-sdk `eh/` multilib | run in EH-enabled tcc-built toywasm ([binaryen/demo-in-wasm.sh](binaryen/demo-in-wasm.sh)) |
+| 2 | **wasm-tools** (the Rust wasm toolbox: validate/print/parse/…) | Rust `wasip1/wasm` | run in toywasm ([wasm-tools/demo-in-wasm.sh](wasm-tools/demo-in-wasm.sh)) |
 | 3 | **toywasm** (our floor) | wasi-sdk | runs inside tcc-built toywasm, 3 deep ([toywasm/demo-wasm-in-wasm.sh](toywasm/demo-wasm-in-wasm.sh)) |
 | 3 | **wasm3** (famous tiny interp) | wasi-sdk | runs inside toywasm ([wasm3/demo-in-wasm.sh](wasm3/demo-in-wasm.sh)) |
 | 3 | **wabt `wasm-interp`** (a wasm interpreter) | wasi-sdk | runs a module's exports AS wasm in toywasm ([wabt/demo-interp-in-wasm.sh](wabt/demo-interp-in-wasm.sh)) |
