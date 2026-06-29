@@ -1,0 +1,9 @@
+upstream:   https://github.com/kanaka/wac
+commit:     8c9da26b4fee6d1a320f944e3a55cc37d5ff1e09
+authored:   2024-08-09
+vendored:   2026-06-29
+license:    MPL-2.0
+
+note: build.sh git-clones the source at this pin into src/ (gitignored) and
+builds the minimal `wax` variant with tcc. Only our build.sh / notes.md and the
+small fixtures (tcc_builtins.h, hello_unstable.wat) are committed.
